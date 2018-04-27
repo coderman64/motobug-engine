@@ -1,0 +1,10 @@
+- fix curved ramp reversal bug
+- make movement more like classics
+- add layers + layer switching areas, making loops possible
+- add other items
+	- monitors
+	- rings
+	- springs in other directions
+	- enemies
+	- spikes
+	- hanging things (like vines and ziplines)
