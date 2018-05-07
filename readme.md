@@ -2,6 +2,8 @@
 
 This is a 360&deg; ("sonic-style") platformer engine completely written in JavaScript and HTML5 allowing you to develop this style of platforming games for the Open Web.
 
+example here: http://coderman64.github.io/motobug-engine/
+
 ## features
 
 * 360&deg; Genesis-style Sonic physics.
