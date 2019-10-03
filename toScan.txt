@@ -17,7 +17,7 @@ s>res/Level/waterfall-ground.png
 s>res/Level/waterfall-steepDownSlope1.png
 s>res/Level/waterfall-steepDownSlope2.png
 s>res/Level/waterfall-steepDownSlope2b.png
-%preprocessedImages.js
+%levels/preprocessedImages.js
 s>res/Level/CrystalGeyser/iceTile.png
 s>res/Level/CrystalGeyser/iceTile-top.png
 s>res/Level/CrystalGeyser/iceTile-wall1.png
@@ -30,4 +30,23 @@ s>res/Level/CrystalGeyser/iceTile-underSW.png
 s>res/Level/CrystalGeyser/iceTile-underSE.png
 s>res/Level/CrystalGeyser/iceTile-ocurveSW.png
 s>res/Level/CrystalGeyser/iceTile-ocurveSE.png
-%CGTiles.js
+s>res/Level/CrystalGeyser/iceTile-ocurveNW.png
+s>res/Level/CrystalGeyser/iceTile-ocurveNE.png
+#se>res/Level/CrystalGeyser/iceTile-curveNW.png
+#sw>res/Level/CrystalGeyser/iceTile-curveNE.png
+%levels/CGTiles.js
+// this is commented out, because it refers to things that don't exist in the real world.
+//m>res/Level/mechaGreen/tiles/0-mask.png||res/Level/mechaGreen/tiles/0m2.png
+//m>res/Level/mechaGreen/tiles/1-mask.png||res/Level/mechaGreen/tiles/1m2.png
+//m>res/Level/mechaGreen/tiles/2-mask.png||res/Level/mechaGreen/tiles/2m2.png
+//m>res/Level/mechaGreen/tiles/3-mask.png||res/Level/mechaGreen/tiles/3m2.png
+//s>res/Level/mechaGreen/tiles/4.png
+//n>res/LEvel/mechaGreen/tiles/5c.png
+//s>res/Level/mechaGreen/tiles/6.png
+//n>res/Level/mechaGreen/tiles/trees1.png
+//n>res/Level/mechaGreen/tiles/trees2.png
+//n>res/Level/mechaGreen/tiles/bridge1.png
+//s>res/Level/mechaGreen/tiles/6ne.png
+//s>res/Level/mechaGreen/tiles/6nw.png
+//s>res/Level/mechaGreen/tiles/6sw.png
+//%levels/MGHZtiles.js

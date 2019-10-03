@@ -299,6 +299,10 @@ def partScan(imgName,strings):
     return "new chunk(newImage(\""+imgName+"\"),"+str(tileData).replace("None","0").replace("'null'","null")+","+str(tileData2).replace("None","0").replace("'null'","null")+","+str(tileData3).replace("None","0").replace("'null'","null")+","+str(tileData4).replace("None","0").replace("'null'","null")+"),"
 
 
+def maskScan(imgName,maskName):
+    return simpleScan(imgName).replace(imgName,maskName)
+
+
 finalString = "chunks = chunks.concat([\n"
 for img in listFile.read().splitlines():
     print(img)
@@ -308,6 +312,8 @@ for img in listFile.read().splitlines():
         finalFile = open(img[1:],"w")
         finalFile.write(finalString)
         finalString = "chunks = chunks.concat([\n"
+    elif img.startswith("//"):
+        pass # commented out
     elif img.startswith("#"):#specify sides
         strings = img[1:img.find(">")]
         finalString += str(partScan(img[img.find(">")+1:],strings))+"\n"
@@ -315,4 +321,7 @@ for img in listFile.read().splitlines():
         finalString += str(simpleScan(img[2:]))+"\n"
     elif img.startswith("n>"):#no scan
         finalString += str(noScan(img[2:]))+"\n"
+    elif img.startswith("m>"):
+        index1 = img.find("||")
+        finalString += str(maskScan(img[2:index1],img[index1+2:]))+"\n"
         
