@@ -1090,7 +1090,7 @@ size(0);									// call the screen resize function, passing an empty value for 
 c.fillStyle = "#999999";
 c.fillRect(0,0,canvi.width,canvi.height);
 c.fillStyle = "#444444";
-c.fi
+c.fillText("Click to start",50,50);
 
 var pausePressed =false;
 
