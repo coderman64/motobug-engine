@@ -50,7 +50,7 @@ function renderLevel(){
 
 function drawLevel(ctx,camx,camy){
     if(!levelRendered){
-        renderLevel();
+        window.setTimeout(renderLevel,1000);
         levelRendered = true;
     }
     ctx.drawImage(levelCanvi,camx,camy);
