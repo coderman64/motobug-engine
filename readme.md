@@ -15,6 +15,7 @@ Example at [https://coderman64.github.io/motobug-engine/](https://coderman64.git
     * hold v and use arrow keys to view around the level
     * change character by pressing p (works outside of debug mode)
     * slow down the game a bit by holding c
+    * tap m to enable motion blur (experimental)
 
 ## Why "Motorbug"?
 
