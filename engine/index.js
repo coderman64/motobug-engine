@@ -316,6 +316,7 @@ var gameStarted = false;
 var startGame = function(){
 	//window.setInterval(loop,17);
 	window.setTimeout(loop,17);
+    fullscreen();
 	gameStarted = true;
 }
 
@@ -1016,7 +1017,7 @@ function physics(){
 	char.pAngle = char.angle; // set the angle to the previous angle
 
 	/// DROP DASH ///
-	if (char.dropCharge >= 20 && char.state == -1&&char.jumpState == 1){
+	if (char.dropCharge >= 10 && char.state == -1&&char.jumpState == 1){
 		char.currentAnim = anim.dropDash;
 		if(char.dropCharge == 20){
 			sfx.src = sfxObj.spindash;
@@ -1064,8 +1065,8 @@ function drawChar(){
 	sc.drawImage(sonicImage,-char.currentAnim[Math.floor(char.frameIndex)][0],-char.currentAnim[Math.floor(char.frameIndex)][1]);
 	if(char.invincible %10 < 5){
 		c.drawImage(sonicCanvas,0,0);
-        if(motionBlurToggle){
-            mBlurCtx.globalAlpha = "0.5";
+        if(motionBlurToggle&&Math.sqrt(char.xv**2+char.yv**2) >= char.TOP){
+            mBlurCtx.globalAlpha = "1";
             mBlurCtx.drawImage(sonicCanvas,0,0);
         }
 	}
@@ -1079,9 +1080,10 @@ function drawChar(){
 	c.setTransform(1,0,0,1,0,0);//reset transformations
     if(motionBlurToggle){
         mBlurCtx.setTransform(1,0,0,1,0,0);//reset transformations
-        mBlurCtx.filter = "blur(0.5px)";
-        mBlurCtx.drawImage(mBlurCanvi,-char.xv*2,-char.yv*2);
-        mBlurCtx.filter = "";
+        //mBlurCtx.filter = "blur(0.5px)";
+        mBlurCtx.globalAlpha = "1";
+        mBlurCtx.drawImage(mBlurCanvi,-char.xv,-char.yv);
+        //mBlurCtx.filter = "";
     }
 }
 
@@ -1096,6 +1098,7 @@ function drawing(){
 	drawBack(c);
 	
 	if(char.layer >= 1){
+        drawMBlur();
 		drawChar();
 	}
 
@@ -1103,6 +1106,7 @@ function drawing(){
 	drawLevel(c,Math.floor(cam.tx),Math.floor(cam.ty));
 
 	if(char.layer < 1){
+        drawMBlur();
 		drawChar();
 	}
 	//char.angle = w;
@@ -1306,37 +1310,22 @@ function loop(){ // the main game loop
 		c.fillStyle = "white";
 		c.fillText("RINGS: "+char.rings.toString(),20,20);
         
-        //if(char.Gv >= char.TOP&&char.state >= 0){
-        if(motionBlurToggle){ // motion blur (optional)
-            c.globalCompositeOperation = "lighten";
-            c.globalAlpha = Math.max(Math.min(0.5,(Math.abs(char.Gv)-char.TOP)/5+1),0).toString();
-            c.drawImage(mBlurCanvi,Math.floor((char.x+Math.sin(char.angle)*h1/2)-vScreenW/2-(char.xv*2))+cam.x,(char.y-Math.cos(char.angle)*h1/2)-vScreenH/2-(char.yv*2)+cam.y);
-            c.globalAlpha = "1";
-            c.globalCompositeOperation = "source-over";
-            if(Math.max(Math.min(0.5,(Math.abs(char.Gv)-char.TOP)/5+1),0) == 0){
-                mBlurCtx.fillStyle = "black";
-                mBlurCtx.fillRect(0,0,vScreenW,vScreenH);      // clear motion blur if you aren't moving fast enough
-            }
-        }
-        //}
-        
-        
 		if(touchControlsActive){
 			c.fillStyle = "#55555555";
-			c.fillRect(30,350,300,300);
-			c.fillRect(950,450,150,150);
+			c.fillRect(10,350/3,100,100);
+			c.fillRect(950/3,450/3,50,50);
 			c.fillStyle = "#990000";
 			if(keysDown[39]){
-				c.fillRect(180,425,150,150);
+				c.fillRect(180/3,425/3,50,50);
 			}
 			if(keysDown[37]){
-				c.fillRect(30,425,150,150);
+				c.fillRect(10,425/3,50,50);
 			}
 			if(keysDown[38]){
-				c.fillRect(105,350,150,150);
+				c.fillRect(105/3,350/3,50,50);
 			}
 			if(keysDown[40]){
-				c.fillRect(105,500,150,150);
+				c.fillRect(105/3,500/3,50,50);
 			}
 
 		}
@@ -1355,6 +1344,22 @@ function loop(){ // the main game loop
 	}
 	//console.log((Date.now()>frameStartTime?Date.now()-frameStartTime:Date.now()-(frameStartTime-1000)));
 	window.setTimeout(loop,Math.min(17,Math.max(17-(Date.now()>frameStartTime?Date.now()-frameStartTime:Date.now()-(frameStartTime-1000)),0)));
+}
+
+function drawMBlur(){
+    if(motionBlurToggle){ // motion blur (optional)
+        c.globalCompositeOperation = "lighter";
+        c.globalAlpha = "0.9";
+        mBlurCtx.fillStyle = "rgba(0,0,0,0.2)"//"+Math.max(0,Math.min(1,1-(Math.sqrt(char.xv^2+char.yv^2)*2-char.TOP+1))).toString()+")";
+        mBlurCtx.fillRect(0,0,vScreenW,vScreenH);      // clear motion blur if you aren't moving fast enough
+        //c.globalAlpha = Math.max(Math.min(0.5,(Math.abs(char.Gv)-char.TOP)/5+1),0).toString();
+        c.drawImage(mBlurCanvi,0.5+Math.floor((char.x+Math.sin(char.angle)*h1/2)-vScreenW/2-(char.xv*2))+cam.x,0.5+(char.y-Math.cos(char.angle)*h1/2)-vScreenH/2-(char.yv*2)+cam.y);
+        c.globalAlpha = "1";
+        c.globalCompositeOperation = "source-over";
+        //if(Math.max(Math.min(0.5,(Math.abs(char.Gv)-char.TOP)/5+1),0) == 0){
+        
+        //}
+    }
 }
 
 function controlPressed(e){
@@ -1432,7 +1437,6 @@ function fullscreen(){
 		console.log("ms fullscreen");
 	}
 }
-fullscreen();
 
 // touch controls
 function updateTouch(touches){
