@@ -306,16 +306,16 @@ var fC = fpsCanvi.getContext("2d");
 function loader(){
 	var img = chunkBacklog.shift();
 	chunks[chunks.length] = autoChunk(img);
-	if(chunkBacklog.length > 0){
-		window.requestAnimationFrame(loader());
-	}
+	// if(chunkBacklog.length > 0){
+	// 	window.requestAnimationFrame(loader());
+	// }
 }
 
 //window.requestAnimationFrame(loop);
 var gameStarted = false;
 var startGame = function(){
-	//window.setInterval(loop,17);
-	window.setTimeout(loop,17);
+	window.setInterval(loop,17);
+	//window.setTimeout(loop,17);
     fullscreen();
 	gameStarted = true;
 }
@@ -1343,7 +1343,7 @@ function loop(){ // the main game loop
 		pausePressed = false;
 	}
 	//console.log((Date.now()>frameStartTime?Date.now()-frameStartTime:Date.now()-(frameStartTime-1000)));
-	window.setTimeout(loop,Math.min(17,Math.max(17-(Date.now()>frameStartTime?Date.now()-frameStartTime:Date.now()-(frameStartTime-1000)),0)));
+	//window.setTimeout(loop,Math.min(17,Math.max(17-(Date.now()>frameStartTime?Date.now()-frameStartTime:Date.now()-(frameStartTime-1000)),0)));
 }
 
 function drawMBlur(){

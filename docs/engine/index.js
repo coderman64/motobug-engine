@@ -1,7 +1,13 @@
-
 var canvi = document.getElementById("myCanvas");
 
 var c = canvi.getContext("2d"); //"CanvasScreen" the context for the "final" canvas
+
+var mBlurCanvi = document.createElement("canvas"); // additional canvas for motion blur effects
+
+var mBlurCtx = mBlurCanvi.getContext("2d");
+
+var motionBlurToggle = false;
+var pMotionBlurToggle = false;
 
 canvi.style.position = "absolute";
 canvi.style.top = "0px";
@@ -300,15 +306,17 @@ var fC = fpsCanvi.getContext("2d");
 function loader(){
 	var img = chunkBacklog.shift();
 	chunks[chunks.length] = autoChunk(img);
-	if(chunkBacklog.length > 0){
-		window.requestAnimationFrame(loader());
-	}
+	// if(chunkBacklog.length > 0){
+	// 	window.requestAnimationFrame(loader());
+	// }
 }
 
 //window.requestAnimationFrame(loop);
 var gameStarted = false;
 var startGame = function(){
 	window.setInterval(loop,17);
+	//window.setTimeout(loop,17);
+    fullscreen();
 	gameStarted = true;
 }
 
@@ -534,6 +542,17 @@ function controls(){
 	else
 	{
 		pDevLevelChange = false;
+	}
+	
+	if(keysDown[77]&&devMode){
+		if(!pMotionBlurToggle){
+			pMotionBlurToggle = true;
+			motionBlurToggle = !motionBlurToggle
+		}
+	}
+	else
+	{
+		pMotionBlurToggle = false;
 	}
 
 	
@@ -998,7 +1017,7 @@ function physics(){
 	char.pAngle = char.angle; // set the angle to the previous angle
 
 	/// DROP DASH ///
-	if (char.dropCharge >= 20 && char.state == -1&&char.jumpState == 1){
+	if (char.dropCharge >= 10 && char.state == -1&&char.jumpState == 1){
 		char.currentAnim = anim.dropDash;
 		if(char.dropCharge == 20){
 			sfx.src = sfxObj.spindash;
@@ -1020,8 +1039,13 @@ function drawChar(){
 	//char.angle = Math.round(char.angle/(Math.PI/4))*(Math.PI/4); // <-- "classic Angles"
 	c.translate((cam.x == 0?char.x:((cam.x==(-level[1].length*128+vScreenW))?char.x-level[1].length*128+vScreenW:vScreenW/2+(cam.tx-cam.x)))+a*Math.cos(char.angle)-b*Math.sin(char.angle),/**HERE*/(cam.y >= -15?char.y-15:((cam.y==(-(level.length-1)*128+vScreenH))?(char.y-(level.length-1)*128+vScreenH):vScreenH/2+(cam.ty-cam.y)))+b*Math.cos(char.angle)+a*Math.sin(char.angle));
 	c.rotate(char.angle);
+    if(motionBlurToggle){
+        mBlurCtx.translate((vScreenW/2+(cam.tx-cam.x))+a*Math.cos(char.angle)-b*Math.sin(char.angle),/**HERE*/vScreenH/2+(cam.ty-cam.y)+b*Math.cos(char.angle)+a*Math.sin(char.angle));
+        mBlurCtx.rotate(char.angle);
+    }
 	if(char.Gv < 0){
 		c.scale(-1,1);
+        mBlurCtx.scale(-1,1);
 	}
 	sonicCanvas.width = char.currentAnim[Math.floor(char.frameIndex)][2];
 	sonicCanvas.height = char.currentAnim[Math.floor(char.frameIndex)][3];
@@ -1041,6 +1065,10 @@ function drawChar(){
 	sc.drawImage(sonicImage,-char.currentAnim[Math.floor(char.frameIndex)][0],-char.currentAnim[Math.floor(char.frameIndex)][1]);
 	if(char.invincible %10 < 5){
 		c.drawImage(sonicCanvas,0,0);
+        if(motionBlurToggle&&Math.sqrt(char.xv**2+char.yv**2) >= char.TOP){
+            mBlurCtx.globalAlpha = "1";
+            mBlurCtx.drawImage(sonicCanvas,0,0);
+        }
 	}
 	if(char.invincible > 0){
 		char.invincible--;
@@ -1050,6 +1078,13 @@ function drawChar(){
 		char.invincible = 0;
 	}
 	c.setTransform(1,0,0,1,0,0);//reset transformations
+    if(motionBlurToggle){
+        mBlurCtx.setTransform(1,0,0,1,0,0);//reset transformations
+        //mBlurCtx.filter = "blur(0.5px)";
+        mBlurCtx.globalAlpha = "1";
+        mBlurCtx.drawImage(mBlurCanvi,-char.xv,-char.yv);
+        //mBlurCtx.filter = "";
+    }
 }
 
 function drawing(){
@@ -1063,6 +1098,7 @@ function drawing(){
 	drawBack(c);
 	
 	if(char.layer >= 1){
+        drawMBlur();
 		drawChar();
 	}
 
@@ -1070,6 +1106,7 @@ function drawing(){
 	drawLevel(c,Math.floor(cam.tx),Math.floor(cam.ty));
 
 	if(char.layer < 1){
+        drawMBlur();
 		drawChar();
 	}
 	//char.angle = w;
@@ -1084,13 +1121,16 @@ var vScreenH = 224; // "Virtual Screen Width/Height" the lower resolution that t
 var vScreenW = 398; // this is upscaled to fit the entire screen
 
 document.body.style.background = "black";	// set the background (aka side bar) color to black
-canvi.height = vScreenH*3;					// set the canvas to three times the virtual width/height of the screen for upscaling.
-canvi.width = vScreenW*3;					// any difference between this and your screen size is made up by CSS scaling
+canvi.height = vScreenH;					// set the canvas to three times the virtual width/height of the screen for upscaling.
+canvi.width = vScreenW;					// any difference between this and your screen size is made up by CSS scaling
+mBlurCanvi.height = vScreenH;
+mBlurCanvi.width = vScreenW;
+mBlurCtx.clearRect(0,0,vScreenW,vScreenH);
 size(0);									// call the screen resize function, passing an empty value for the event
 c.fillStyle = "#999999";
 c.fillRect(0,0,canvi.width,canvi.height);
 c.fillStyle = "#444444";
-c.fi
+c.fillText("Click to start",50,50);
 
 var pausePressed =false;
 
@@ -1098,7 +1138,7 @@ window.addEventListener("resize",size);
 
 function size(e){
 	document.body.style.background = "black";
-	canvi.style.imageRendering = "pixelized";
+	canvi.style.imageRendering = "crisp-edges";
 	canvi.style.position = "absolute";
 	if((window.innerHeight/canvi.height) < (window.innerWidth/canvi.width)){
 		canvi.style.height = window.innerHeight-4+"px";
@@ -1116,6 +1156,8 @@ function size(e){
 
 var slowmo1 = 0;		// variables for slowing the engine for debugging
 var timeSince = 0;
+var frameStartTime = 0;
+var lastDrawTime = 0;
 
 resetLevel();		// reset the game to start out
 
@@ -1124,8 +1166,12 @@ function loop(){ // the main game loop
 	slowmo1++;
 
 	fpsFactor = (keysDown[67]?1:fpsFactor);
+	//fpsFactor = 2;
+	
+	frameStartTime = Date.now();
 
-	if(continue1&&(keysDown[67]?slowmo1%4==0:true)&&Date.now()-timeSince > 17){//allow to freeze for developer purposes if things get too out of hand.
+	//Date.now()-timeSince > 17
+	if(continue1&&(keysDown[67]?slowmo1%4==0:true)){//allow to freeze for developer purposes if things get too out of hand.
 		timeSince = Date.now()
 		//gamepad controls
 
@@ -1214,6 +1260,7 @@ function loop(){ // the main game loop
 		physics();
 
 		//-----------------------------------DRAW-------------------------------------
+
 		drawing();
 
 		c.font = "10px sans-serif";
@@ -1262,31 +1309,30 @@ function loop(){ // the main game loop
 		c.fillText("RINGS: "+char.rings.toString(),21,21);
 		c.fillStyle = "white";
 		c.fillText("RINGS: "+char.rings.toString(),20,20);
-		//do a camera view thing
-		c.drawImage(canvi,0,0,canvi.width*3,canvi.height*3);
+        
 		if(touchControlsActive){
 			c.fillStyle = "#55555555";
-			c.fillRect(30,350,300,300);
-			c.fillRect(950,450,150,150);
+			c.fillRect(10,350/3,100,100);
+			c.fillRect(950/3,450/3,50,50);
 			c.fillStyle = "#990000";
 			if(keysDown[39]){
-				c.fillRect(180,425,150,150);
+				c.fillRect(180/3,425/3,50,50);
 			}
 			if(keysDown[37]){
-				c.fillRect(30,425,150,150);
+				c.fillRect(10,425/3,50,50);
 			}
 			if(keysDown[38]){
-				c.fillRect(105,350,150,150);
+				c.fillRect(105/3,350/3,50,50);
 			}
 			if(keysDown[40]){
-				c.fillRect(105,500,150,150);
+				c.fillRect(105/3,500/3,50,50);
 			}
 
 		}
 	}
 	//console.
 	//window.requestAnimationFrame(loop);
-	if(keysDown[13]){
+	if(keysDown[13]&&introAnim >= 120){
 		if(!pausePressed){
 			continue1 = !continue1;
 		}
@@ -1296,6 +1342,24 @@ function loop(){ // the main game loop
 	{
 		pausePressed = false;
 	}
+	//console.log((Date.now()>frameStartTime?Date.now()-frameStartTime:Date.now()-(frameStartTime-1000)));
+	//window.setTimeout(loop,Math.min(17,Math.max(17-(Date.now()>frameStartTime?Date.now()-frameStartTime:Date.now()-(frameStartTime-1000)),0)));
+}
+
+function drawMBlur(){
+    if(motionBlurToggle){ // motion blur (optional)
+        c.globalCompositeOperation = "lighter";
+        c.globalAlpha = "0.9";
+        mBlurCtx.fillStyle = "rgba(0,0,0,0.2)"//"+Math.max(0,Math.min(1,1-(Math.sqrt(char.xv^2+char.yv^2)*2-char.TOP+1))).toString()+")";
+        mBlurCtx.fillRect(0,0,vScreenW,vScreenH);      // clear motion blur if you aren't moving fast enough
+        //c.globalAlpha = Math.max(Math.min(0.5,(Math.abs(char.Gv)-char.TOP)/5+1),0).toString();
+        c.drawImage(mBlurCanvi,0.5+Math.floor((char.x+Math.sin(char.angle)*h1/2)-vScreenW/2-(char.xv*2))+cam.x,0.5+(char.y-Math.cos(char.angle)*h1/2)-vScreenH/2-(char.yv*2)+cam.y);
+        c.globalAlpha = "1";
+        c.globalCompositeOperation = "source-over";
+        //if(Math.max(Math.min(0.5,(Math.abs(char.Gv)-char.TOP)/5+1),0) == 0){
+        
+        //}
+    }
 }
 
 function controlPressed(e){
@@ -1373,7 +1437,6 @@ function fullscreen(){
 		console.log("ms fullscreen");
 	}
 }
-fullscreen();
 
 // touch controls
 function updateTouch(touches){
