@@ -206,14 +206,6 @@ var spikes = function(x,y,w,h,src,angle){
         }
     }
     this.draw = function(ctx,camx,camy){
-        /*if(this.frame > 0){
-            this.frame += 0.25;
-            if(this.frame >= 4){
-                this.frame = 0;
-            }
-        }
-        this.c.clearRect(0,0,this.w,this.h);
-        this.c.drawImage(this.img,-Math.floor(this.frame)*this.w,0);*/
         for(var i = 0; i<Math.floor(this.w/this.img.width); i++){
             ctx.drawImage(this.img,this.x+camx+this.img.width*i,this.y+camy);
         }

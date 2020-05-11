@@ -60,6 +60,41 @@ function back2(c){
     }
 }
 
+var psychParts = [];
+
+
+function wrap(value,min,max){
+	if(value < min){
+		value = max-(min-value);
+	}
+	if(value > max){
+		value = min-(max-value);
+	}
+	return value;
+}
+
+function psychBack(c){
+	if(psychParts.length < 1){
+		for(var i = 0; i < 20; i++){
+			psychParts.push([Math.random()*vScreenW,Math.random()*vScreenH,Math.random()*360])
+		}
+	}
+	c.fillStyle = "#FF0000"
+	for(var i = 0; i < psychParts.length; i++){
+		psychParts[i][0] += Math.random()*5-2.5;
+		psychParts[i][1] += Math.random()*5-2.5;
+		psychParts[i][2] += Math.random()*10-5;
+		psychParts[i][0] = wrap(psychParts[i][0],0,vScreenW);
+		psychParts[i][1] = wrap(psychParts[i][1],0,vScreenH)
+		psychParts[i][2] = wrap(psychParts[i][2],0,360)
+		c.filter = "blur(20px) hue-rotate("+psychParts[i][2].toString()+"deg)";
+		c.beginPath()
+		c.arc(psychParts[i][0],psychParts[i][1],100,0,360);
+		c.fill()
+	}
+	c.filter = "none";
+}
+
 function MGHBack(c){
 	c.fillStyle = "#0044AA"
 	c.fillRect(0,0,vScreenW,vScreenH);
@@ -71,7 +106,8 @@ function MGHBack(c){
 	c.drawImage(MGHImg,Math.floor(cam.tx/(10))%imgWidth+vScreenH*32/9-1,0,vScreenH*16/9,vScreenH);
 }
 
-var backFunc = [back1,back2];
+var backFunc = [back1,back2,psychBack];
+console.log(backFunc)
 
 function drawBack(c){
     backFunc[cBack](c);

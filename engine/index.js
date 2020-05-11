@@ -620,7 +620,7 @@ function physics(){
 		char.angle = char.angle%(Math.PI*2)+Math.PI*2;
 	}
 
-	// if you are on the floor, ceiling or walls...
+	///////////////////////////////////// MAIN COLLISION //////////////////////
 	if(char.state >= 0 && char.y != NaN){
 
 		if(char.state == 0){//if you are on the ground
@@ -685,6 +685,19 @@ function physics(){
 			//detect the ground of the left wall
 			var backSense = senseHLineR(char.x-20,char.y-9,46,c,char.layer);
 			var frontSense = senseHLineR(char.x-20,char.y+9,46,c,char.layer);
+
+			// sense to sonic's sides
+			var upSideSense = senseVLineB(char.x-20,char.y,20,c,char.layer);
+			var downSideSense = senseVLine(char.x-20,char.y,20,c,char.layer);
+
+			// if you hit anything to your sides, just fall to the ground
+			if(upSideSense[0]&&char.y+char.yv < upSideSense[1]-10&&char.Gv > 0||downSideSense[0]&&char.y+char.yv > downSideSense[1]+10&&char.Gv < 0){
+				char.yv = 0;
+				char.xv = char.Gv*Math.cos(char.angle);
+				char.Gv = char.xv;
+				char.state = -1;
+				char.jumpState = 0;
+			}
 			
 			if(backSense[0] != false && frontSense[0] != false){
 				char.x = (isNaN((backSense[1]+frontSense[1])/2)?char.y:((backSense[1]+frontSense[1])/2));
@@ -724,6 +737,20 @@ function physics(){
 		else if(char.state == 3){//if you're running on the right wall
 			var backSense = senseHLineL(char.x+20,char.y-9,46,c,char.layer);
 			var frontSense = senseHLineL(char.x+20,char.y+9,46,c,char.layer);
+
+			// sense to sonic's sides
+			var upSideSense = senseVLineB(char.x+20,char.y,20,c,char.layer);
+			var downSideSense = senseVLine(char.x+20,char.y,20,c,char.layer);
+
+			// if you hit anything to your sides, just fall to the ground
+			if(upSideSense[0]&&char.y+char.yv < upSideSense[1]-10&&char.Gv < 0||downSideSense[0]&&char.y+char.yv > downSideSense[1]+10&&char.Gv > 0){
+				char.yv = 0;
+				char.xv = char.Gv*Math.cos(char.angle);
+				char.Gv = char.xv;
+				char.state = -1;
+				char.jumpState = 0;
+			}
+
 			if(backSense[0] != false && frontSense[0] != false){
 				char.x = (isNaN((backSense[1]+frontSense[1])/2)?char.x:((backSense[1]+frontSense[1])/2));
 				var angle1 = ((isNaN(backSense[2]*Math.PI/180)?char.angle:backSense[2]*Math.PI/180)+(isNaN(frontSense[2]*Math.PI/180)?char.angle:frontSense[2]*Math.PI/180))/2;
@@ -1342,8 +1369,6 @@ function loop(){ // the main game loop
 	{
 		pausePressed = false;
 	}
-	//console.log((Date.now()>frameStartTime?Date.now()-frameStartTime:Date.now()-(frameStartTime-1000)));
-	//window.setTimeout(loop,Math.min(17,Math.max(17-(Date.now()>frameStartTime?Date.now()-frameStartTime:Date.now()-(frameStartTime-1000)),0)));
 }
 
 function drawMBlur(){
@@ -1352,13 +1377,9 @@ function drawMBlur(){
         c.globalAlpha = "0.9";
         mBlurCtx.fillStyle = "rgba(0,0,0,0.2)"//"+Math.max(0,Math.min(1,1-(Math.sqrt(char.xv^2+char.yv^2)*2-char.TOP+1))).toString()+")";
         mBlurCtx.fillRect(0,0,vScreenW,vScreenH);      // clear motion blur if you aren't moving fast enough
-        //c.globalAlpha = Math.max(Math.min(0.5,(Math.abs(char.Gv)-char.TOP)/5+1),0).toString();
         c.drawImage(mBlurCanvi,0.5+Math.floor((char.x+Math.sin(char.angle)*h1/2)-vScreenW/2-(char.xv*2))+cam.x,0.5+(char.y-Math.cos(char.angle)*h1/2)-vScreenH/2-(char.yv*2)+cam.y);
         c.globalAlpha = "1";
         c.globalCompositeOperation = "source-over";
-        //if(Math.max(Math.min(0.5,(Math.abs(char.Gv)-char.TOP)/5+1),0) == 0){
-        
-        //}
     }
 }
 

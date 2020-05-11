@@ -28,9 +28,13 @@ function senseVLine(x,y,h,c,l){
                 if(Array.isArray(level[Math.floor((y+i*16)/128)+1][Math.floor(x/128)]) == false){
                     tiles1 = chunks[level[Math.floor((y+i*16)/128)+1][Math.floor(x/128)]].tiles;
                 }
-                else
+                else if(l < level[Math.floor((y+i*16)/128)+1][Math.floor(x/128)].length)
                 {
                     tiles1 = chunks[level[Math.floor((y+i*16)/128)+1][Math.floor(x/128)][l]].tiles;
+                }
+                else
+                {
+                    continue;
                 }
                 if(tiles1 != undefined && tiles1[Math.floor(((y+i*16)%128)/16)]){
                     if(tiles1[Math.floor(((y+i*16)%128)/16)][Math.floor((x%128)/16)] && tiles1[Math.floor(((y+i*16)%128)/16)][Math.floor((x%128)/16)][Math.floor((x%128)%16)] != -16){
@@ -71,9 +75,13 @@ function senseVLineB(x,y,h,c,l){
                 if(Array.isArray(level[Math.floor((y-i*16)/128)+1][Math.floor(x/128)]) == false){
                     tiles1 = chunks[level[Math.floor((y-i*16)/128)+1][Math.floor(x/128)]].btiles;
                 }
-                else
+                else if(level[Math.floor((y-i*16)/128)+1][Math.floor(x/128)].length > l)
                 {
                     tiles1 = chunks[level[Math.floor((y-i*16)/128)+1][Math.floor(x/128)][l]].btiles;
+                }
+                else
+                {
+                    continue;
                 }
                 if(tiles1 != undefined && tiles1[Math.floor(((y+i*16)%128)/16)]){
                     if(tiles1[Math.floor(((y-i*16)%128)/16)][Math.floor((x%128)/16)] && tiles1[Math.floor(((y-i*16)%128)/16)][Math.floor((x%128)/16)][Math.floor((x%128)%16)] != -16){
@@ -105,9 +113,13 @@ function senseHLineR(x,y,w,c,l){
                 if(Array.isArray(level[Math.floor(y/128)+1][Math.floor((x+i*16)/128)]) == false){
                     tiles1 = chunks[level[Math.floor(y/128)+1][Math.floor((x+i*16)/128)]].ltiles;
                 }
-                else
+                else if(level[Math.floor(y/128)+1][Math.floor((x+i*16)/128)].length > l)
                 {
                     tiles1 = chunks[level[Math.floor(y/128)+1][Math.floor((x+i*16)/128)][l]].ltiles;
+                }
+                else
+                {
+                    continue;
                 }
                 if(tiles1 != undefined && tiles1[Math.floor(((x+i*16)%128)/16)]){
                     if(tiles1[Math.floor(((x+i*16)%128)/16)][Math.floor((y%128)/16)]&&tiles1[Math.floor(((x+i*16)%128)/16)][Math.floor((y%128)/16)][Math.floor((y%128)%16)] != -16){
@@ -151,9 +163,13 @@ function senseHLineL(x,y,w,c,l){
                 if(Array.isArray(level[Math.floor(y/128)+1][Math.floor((x-i*16)/128)]) == false){
                     tiles1 = chunks[level[Math.floor(y/128)+1][Math.floor((x-i*16)/128)]].rtiles;
                 }
-                else
+                else if(level[Math.floor(y/128)+1][Math.floor((x-i*16)/128)].length > l)
                 {
                     tiles1 = chunks[level[Math.floor(y/128)+1][Math.floor((x-i*16)/128)][l]].rtiles;
+                }
+                else
+                {
+                    continue;
                 }
                 if(tiles1 != undefined && tiles1[Math.floor(((x-i*16)%128)/16)]){
                     if(tiles1[Math.floor(((x-i*16)%128)/16)][Math.floor((y%128)/16)]&&tiles1[Math.floor(((x-i*16)%128)/16)][Math.floor((y%128)/16)][Math.floor((y%128)%16)] != -16){
