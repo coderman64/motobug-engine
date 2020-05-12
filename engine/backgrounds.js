@@ -73,23 +73,38 @@ function wrap(value,min,max){
 	return value;
 }
 
+function clamp(value,min,max){
+	if(value < min){
+		value = min;
+	}
+	if(value > max){
+		value = max;
+	}
+	return value;
+}
+
 function psychBack(c){
 	if(psychParts.length < 1){
 		for(var i = 0; i < 20; i++){
-			psychParts.push([Math.random()*vScreenW,Math.random()*vScreenH,Math.random()*360])
+			psychParts.push([Math.random()*vScreenW,Math.random()*vScreenH,Math.random()*5-2.5,Math.random()*5-2.5,Math.random()*360,Math.random()*5-2.5])
 		}
 	}
-	c.fillStyle = "#FF0000"
+	c.fillStyle = "#FF0000";
+	c.filter = "hue-rotate("+psychParts[0][4].toString()+"deg)";
+	c.fillRect(0,0,vScreenW,vScreenH);
 	for(var i = 0; i < psychParts.length; i++){
-		psychParts[i][0] += Math.random()*5-2.5;
-		psychParts[i][1] += Math.random()*5-2.5;
-		psychParts[i][2] += Math.random()*10-5;
-		psychParts[i][0] = wrap(psychParts[i][0],0,vScreenW);
-		psychParts[i][1] = wrap(psychParts[i][1],0,vScreenH)
-		psychParts[i][2] = wrap(psychParts[i][2],0,360)
-		c.filter = "blur(20px) hue-rotate("+psychParts[i][2].toString()+"deg)";
+		psychParts[i][2] = clamp(psychParts[i][2]+Math.random()*2-1,-5,5);
+		psychParts[i][3] = clamp(psychParts[i][3]+Math.random()*2-1,-5,5);
+		psychParts[i][5] = clamp(psychParts[i][5]+Math.random()*2-1,-2,2);
+		psychParts[i][0] += psychParts[i][2];
+		psychParts[i][1] += psychParts[i][3];
+		psychParts[i][4] += psychParts[i][5];
+		psychParts[i][0] = wrap(psychParts[i][0],-vScreenW,vScreenW*2);
+		psychParts[i][1] = wrap(psychParts[i][1],-vScreenH,vScreenH*2);
+		psychParts[i][4] = wrap(psychParts[i][4],0,360);
+		c.filter = "blur(100px) hue-rotate("+psychParts[i][4].toString()+"deg)";
 		c.beginPath()
-		c.arc(psychParts[i][0],psychParts[i][1],100,0,360);
+		c.arc(psychParts[i][0],psychParts[i][1],150,0,360);
 		c.fill()
 	}
 	c.filter = "none";
