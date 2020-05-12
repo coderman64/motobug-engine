@@ -314,7 +314,7 @@ var timer = 0;
 var continue1 = true;
 var fpsFactor = 0;
 
-var lastMillis = Date.now();
+var lastMillis = performance.now();
 var newMillis = lastMillis;
 var imageWidth = 0;
 var fpsCanvi = document.createElement("canvas");
@@ -1228,7 +1228,7 @@ function loop(){ // the main game loop
 	fpsFactor = (keysDown[67]?1:fpsFactor);
 	//fpsFactor = 2;
 	
-	frameStartTime = Date.now();
+	frameStartTime = performance.now();
 
 	//Date.now()-timeSince > 17
 	if(continue1&&(keysDown[67]?slowmo1%4==0:true)){//allow to freeze for developer purposes if things get too out of hand.
@@ -1328,7 +1328,7 @@ function loop(){ // the main game loop
 		c.textAlign = "left";
 		
 		lastMillis = newMillis;
-		newMillis = Date.now();
+		newMillis = performance.now();
 		fpsFactor = 1;//((newMillis>lastMillis?newMillis-lastMillis:newMillis-(lastMillis-1000))/100)*6;
 		if(fpsFactor>2){
 			fpsFactor = 2;
