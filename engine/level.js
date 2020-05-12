@@ -29,7 +29,7 @@ function loadLevel(levelName){
     document.body.appendChild(newScript);
 }
 
-var levelsList = ['level_0', 'level_1'];
+var levelsList = ['CG-lev1', 'level1','level2'];
 var currentLevel = -1;
 
 function loadNextLevel(){
