@@ -524,8 +524,8 @@ function controls(){
 				sfxObj2.spindash.pause();
 			}
 		}
-		if(Math.abs(char.Gv) > 16){
-			char.Gv = 16*(char.Gv/Math.abs(char.Gv));
+		if(Math.abs(char.Gv) > 22){
+			char.Gv = 22*(char.Gv/Math.abs(char.Gv));
 		}
 	}
 	if(char.golock > 0){
@@ -863,15 +863,15 @@ function physics(){
 	else if(char.state == -1){ // if you are in the air
 		
 		char.yv += char.GRV*fpsFactor;
-		if(char.yv > 16){char.yv = 16;} //limit y speed, so things don't explode.
+		if(char.yv > 50){char.yv = 50;} //limit y speed, so things don't explode.
 
 		// adjust sensors based on rotation, so they always match where the character is onscreen
 		var rotX = Math.sin(char.angle)*15;
 		var rotY = -(Math.cos(char.angle)*15-15);
 
 		/// SENSE EVERYTHING /// 
-		var backSense = senseVLine(char.x-7+rotX,char.y-15+rotY,46,c,char.layer);
-		var frontSense = senseVLine(char.x+7+rotX,char.y-15+rotY,46,c,char.layer);
+		var backSense = senseVLine(char.x-7+rotX,char.y-15+rotY,50,c,char.layer);
+		var frontSense = senseVLine(char.x+7+rotX,char.y-15+rotY,50,c,char.layer);
 		var RsideSense = senseHLineR(char.x+rotX, char.y-15+rotY,20,c,char.layer);
 		var LsideSense = senseHLineL(char.x+rotX, char.y-15+rotY,20,c,char.layer);
 		var backTopSense = senseVLineB(char.x-9+rotX,char.y-15+rotY,46,c,char.layer);
@@ -896,7 +896,7 @@ function physics(){
 
 
 		/// LANDING (LEFT SENSOR) ///
-		if(backSense[0] == true && backSense[1] < char.y+rotY && (frontSense[0]==true?backSense[1] <= frontSense[1]:true)&& (Math.abs(char.angle%(Math.PI*2)) < Math.PI/2&&char.yv > 0)){
+		if(backSense[0] == true && backSense[1] < char.y+rotY+char.yv && (frontSense[0]==true?backSense[1] <= frontSense[1]:true)&& (Math.abs(char.angle%(Math.PI*2)) < Math.PI/2&&char.yv > 0)){
 			console.log("foot1: "+(Math.abs(char.angle%(Math.PI*2))*180/Math.PI).toString());
 			if(Math.abs(backSense[2]) < 80){
 				if(frontSense[2] > 45 && backSense[2] > 45){
@@ -927,7 +927,7 @@ function physics(){
 			}
 		}
 		/// LANDING (RIGHT SENSOR) ///
-		if(frontSense[0] == true && frontSense[1] < char.y+rotY && (backSense[0] == true?(frontSense[1] <= backSense[1]):true) && (Math.abs(char.angle%(Math.PI*2)) < Math.PI/2&&char.yv > 0)){
+		if(frontSense[0] == true && frontSense[1] < char.y+rotY+char.yv && (backSense[0] == true?(frontSense[1] <= backSense[1]):true) && (Math.abs(char.angle%(Math.PI*2)) < Math.PI/2&&char.yv > 0)){
 			console.log("foot2");
 			if(Math.abs(frontSense[2]) < 80){
 				if(frontSense[2] > 45){
@@ -959,14 +959,14 @@ function physics(){
 		}
 
 		/// RUNNING INTO THINGS IN MID AIR ///
-		if(RsideSense[0] == true&&char.x+rotX > RsideSense[1]-16&&char.state == -1&&RsideSense[1] != LsideSense[1]+1){
+		if(RsideSense[0] == true&&char.x+rotX+char.xv > RsideSense[1]-16&&char.state == -1&&RsideSense[1] != LsideSense[1]+1){
 			console.log("sideleft");
 			char.x = RsideSense[1]-16.1-rotX;
 			if(char.Gv > 0){
 				char.Gv = 0.001*char.Gv/Math.abs(char.Gv);
 			}			
 		}
-		if(LsideSense[0] == true&&char.x+rotX < LsideSense[1]+16&&char.state == -1&&RsideSense[1] != LsideSense[1]+1){
+		if(LsideSense[0] == true&&char.x+rotX+char.xv < LsideSense[1]+16&&char.state == -1&&RsideSense[1] != LsideSense[1]+1){
 			console.log("sideright");
 			char.x = LsideSense[1]+16.1-rotX;
 			if(char.Gv < 0){
@@ -1035,8 +1035,8 @@ function physics(){
 	
 	/// COLLIDE WITH STAGE ITEMS ///
 	for(var i = 0; i < level[0].length; i++){
-		if(level[0][i].disable != true&&char.x+15+15*Math.sin(char.angle) > level[0][i].x&&char.x-15+15*Math.sin(char.angle) < level[0][i].x+level[0][i].w){
-			if(level[0][i].hit&&char.y+20-20*Math.cos(char.angle) > level[0][i].y&&char.y-20-20*Math.cos(char.angle) < level[0][i].y+level[0][i].h){
+		if(level[0][i].disable != true&&char.x+char.xv+15+15*Math.sin(char.angle) > level[0][i].x&&char.x+char.xv-15+15*Math.sin(char.angle) < level[0][i].x+level[0][i].w){
+			if(level[0][i].hit&&char.y+char.yv+20-20*Math.cos(char.angle) > level[0][i].y&&char.y+char.yv-20-20*Math.cos(char.angle) < level[0][i].y+level[0][i].h){
 				level[0][i].hit(char);
 			}
 			if(level[0][i].destroy){ // remove items marked to be destroyed
@@ -1088,17 +1088,23 @@ function physics(){
 	}
 }
 
+var pCharPos = {x:char.x,y:char.y}
+
 function drawChar(){
 //draw Character
 	//console.log("sonic is drawn");
 	var a = (char.currentAnim[Math.floor(char.frameIndex)][2]/2)*((char.Gv<0)?1:-1);
-	var b = -(char.currentAnim[Math.floor(char.frameIndex)][3])+15;
+	var b = -(char.currentAnim[Math.floor(char.frameIndex)][3]);//+15;
+	//var temp = char.angle
 	//char.angle = Math.round(char.angle/(Math.PI/4))*(Math.PI/4); // <-- "classic Angles"
-	c.translate((cam.x == 0?char.x:((cam.x==(-level[1].length*128+vScreenW))?char.x-level[1].length*128+vScreenW:vScreenW/2+(cam.tx-cam.x)))+a*Math.cos(char.angle)-b*Math.sin(char.angle),/**HERE*/(cam.y >= -15?char.y-15:((cam.y==(-(level.length-1)*128+vScreenH))?(char.y-(level.length-1)*128+vScreenH):vScreenH/2+(cam.ty-cam.y)))+b*Math.cos(char.angle)+a*Math.sin(char.angle));
+	//c.translate((cam.x == 0?char.x:((cam.x==(-level[1].length*128+vScreenW))?char.x-level[1].length*128+vScreenW:vScreenW/2+(cam.tx-cam.x)))+a*Math.cos(char.angle)-b*Math.sin(char.angle),  (cam.y >= -15?char.y-15:((cam.y==(-(level.length-1)*128+vScreenH))?(char.y-(level.length-1)*128+vScreenH):vScreenH/2+(cam.ty-cam.y)))+b*Math.cos(char.angle)+a*Math.sin(char.angle));
+	c.translate(char.x+cam.x+a*Math.cos(char.angle)-b*Math.sin(char.angle),char.y+cam.y+b*Math.cos(char.angle)+a*Math.sin(char.angle));
 	c.rotate(char.angle);
+	//char.angle = temp;
     if(motionBlurToggle){
-        mBlurCtx.translate((vScreenW/2+(cam.tx-cam.x))+a*Math.cos(char.angle)-b*Math.sin(char.angle),/**HERE*/vScreenH/2+(cam.ty-cam.y)+b*Math.cos(char.angle)+a*Math.sin(char.angle));
-        mBlurCtx.rotate(char.angle);
+        //mBlurCtx.translate((vScreenW/2+(cam.tx-cam.x))+a*Math.cos(char.angle)-b*Math.sin(char.angle),vScreenH/2+(cam.ty-cam.y)+b*Math.cos(char.angle)+a*Math.sin(char.angle));
+		mBlurCtx.translate(char.x+cam.x+a*Math.cos(char.angle)-b*Math.sin(char.angle),char.y+cam.y+b*Math.cos(char.angle)+a*Math.sin(char.angle))
+		mBlurCtx.rotate(char.angle);
     }
 	if(char.Gv < 0){
 		c.scale(-1,1);
@@ -1112,9 +1118,6 @@ function drawChar(){
 	if(char.levitate==true&&char.GRV == 0&&char.state == -1){ // draw levitation for silver
 		sc.filter = "invert(50%) sepia(200%) hue-rotate(120deg) brightness(110%) contrast(200%) opacity(100%) blur(2px)";
 		sc.drawImage(sonicImage,-char.currentAnim[Math.floor(char.frameIndex)][0],-char.currentAnim[Math.floor(char.frameIndex)][1]);
-		/*if(char.invincible %10 < 5){
-			//c.drawImage(sonicCanvas,-1,-1);
-		}*/
 		sc.filter = "sepia(0%)";
 		sc.drawImage(sonicImage,-char.currentAnim[Math.floor(char.frameIndex)][0],-char.currentAnim[Math.floor(char.frameIndex)][1]);
 		sc.filter = "sepia(200%) hue-rotate(120deg) brightness(80%) contrast(200%) opacity(50%)";
@@ -1123,7 +1126,7 @@ function drawChar(){
 	if(char.invincible %10 < 5){
 		c.drawImage(sonicCanvas,0,0);
         if(motionBlurToggle&&Math.sqrt(char.xv**2+char.yv**2) >= char.TOP){
-            mBlurCtx.globalAlpha = "1";
+            //mBlurCtx.globalAlpha = "1";
             mBlurCtx.drawImage(sonicCanvas,0,0);
         }
 	}
@@ -1275,12 +1278,7 @@ function loop(){ // the main game loop
 			h1 = 30;
 		}*/
 		h1 = 30;
-		cam.x = Math.max(Math.min(0,Math.floor((-char.x-Math.sin(char.angle)*h1/2)+vScreenW/2+(char.xv*2))),-level[1].length*128+vScreenW);
-		cam.y = Math.max(Math.min(0,(-char.y+Math.cos(char.angle)*h1/2)+vScreenH/2+(char.yv*2)),-(level.length-1)*128+vScreenH);//-(level.length-1)*128+vScreenH/3)
-		
-		cam.tx = cam.x+debug.camX;
-		cam.ty = cam.y+debug.camY;
-		
+
 		timer++;
 
 		c.fillStyle = "#9999FF";
@@ -1314,6 +1312,14 @@ function loop(){ // the main game loop
 		//----------------------------------PHYSICS-----------------------------------
 		physics();
 
+		// update the camera after the physics
+		cam.x += clamp((Math.max(Math.min(0,((-char.x-Math.sin(char.angle)*h1/2)+vScreenW/2)),-level[1].length*128+vScreenW)-cam.x),-15,15);
+		cam.y += clamp(Math.max(Math.min(0,(-char.y+Math.cos(char.angle)*h1/2)+vScreenH/2),-(level.length-1)*128+vScreenH)-cam.y,-15,15);//-(level.length-1)*128+vScreenH/3)
+		
+		cam.tx = cam.x+debug.camX;
+		cam.ty = cam.y+debug.camY;
+		
+
 		//-----------------------------------DRAW-------------------------------------
 
 		drawing();
@@ -1323,7 +1329,7 @@ function loop(){ // the main game loop
 		
 		lastMillis = newMillis;
 		newMillis = Date.now();
-		fpsFactor = ((newMillis>lastMillis?newMillis-lastMillis:newMillis-(lastMillis-1000))/100)*6;
+		fpsFactor = 1;//((newMillis>lastMillis?newMillis-lastMillis:newMillis-(lastMillis-1000))/100)*6;
 		if(fpsFactor>2){
 			fpsFactor = 2;
 		}
@@ -1342,11 +1348,12 @@ function loop(){ // the main game loop
 			c.fillText("Angle (deg):"+Math.round(char.angle*180/Math.PI).toString(),200,10);
 			c.fillText("Wall state: "+(char.state).toString(),200,20);
 			c.fillText("Hor. Velocity: "+(Math.round(char.Gv*100)/100).toString(),200,30);
-			c.fillText("FPS factor: "+fpsFactor,200,40);
-			c.fillText("FPS: "+Math.round(1000/(newMillis>lastMillis?newMillis-lastMillis:newMillis-(lastMillis-1000))).toString(),200,50);
-			c.fillText("Layer: "+(char.layer).toString(),200,60);
+			c.fillText("Vert. Velocity: "+(Math.round(char.yv*100)/100).toString(),200,40);
+			c.fillText("FPS factor: "+fpsFactor,200,50);
+			c.fillText("FPS: "+Math.round(1000/(newMillis>lastMillis?newMillis-lastMillis:newMillis-(lastMillis-1000))).toString(),200,60);
+			c.fillText("Layer: "+(char.layer).toString(),200,70);
 			//c.fillText(char.pHoming,200,60);
-			c.fillText("Player Pos.: ("+Math.floor(char.x)+","+Math.floor(char.y)+")",200,80);
+			c.fillText("Player Pos.: ("+Math.floor(char.x)+","+Math.floor(char.y)+")",200,90);
 			fC.drawImage(fpsCanvi,-1,0);
 			fC.fillStyle = "#000000";
 			fC.fillRect(29,0,1,20);
@@ -1405,7 +1412,7 @@ function drawMBlur(){
         c.globalAlpha = "0.9";
         mBlurCtx.fillStyle = "rgba(0,0,0,0.2)"//"+Math.max(0,Math.min(1,1-(Math.sqrt(char.xv^2+char.yv^2)*2-char.TOP+1))).toString()+")";
         mBlurCtx.fillRect(0,0,vScreenW,vScreenH);      // clear motion blur if you aren't moving fast enough
-        c.drawImage(mBlurCanvi,0.5+Math.floor((char.x+Math.sin(char.angle)*h1/2)-vScreenW/2-(char.xv*2))+cam.x,0.5+(char.y-Math.cos(char.angle)*h1/2)-vScreenH/2-(char.yv*2)+cam.y);
+        c.drawImage(mBlurCanvi,0,0);//0.5+Math.floor((char.x+Math.sin(char.angle)*h1/2)-vScreenW/2-(char.xv*2))+cam.x,0.5+(char.y-Math.cos(char.angle)*h1/2)-vScreenH/2-(char.yv*2)+cam.y);
         c.globalAlpha = "1";
         c.globalCompositeOperation = "source-over";
     }

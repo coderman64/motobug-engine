@@ -60,7 +60,7 @@ var spring = function(x,y,w,h,src,power,angle){
                 }
             }
         }
-        else if(char.yv > 0&&char.y > this.y+16)
+        else if(char.yv > 0&&char.y+char.yv > this.y+16)
         {
             char.state = -1;
             char.Gv = char.xv;
@@ -82,6 +82,7 @@ var spring = function(x,y,w,h,src,power,angle){
                 this.frame = 0;
             }
         }
+        debug.addRect(this.x,this.y+16,this.w,this.h-16,"#00FF00AA")
         this.c.clearRect(0,0,this.w,this.h);
         this.c.drawImage(this.img,-Math.floor(this.frame)*this.w,0);
         ctx.drawImage(this.canvi,this.x+camx,this.y+camy,this.w,this.h);
