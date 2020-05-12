@@ -57,10 +57,10 @@ sfx.src = sfxObj.jump;
 sfx.volume = 0.8;
 
 var keysDown = [];
-var gamepads = {};
+var gamepads = [];
 var sonicImage = document.createElement("img");
 sonicImage.src = "SonicSheet2.png";
-sonicImage.style.imageRendering = "pixelated";
+//sonicImage.style.imageRendering = "pixelated";
 
 var backgroundImage1 = document.createElement("img");
 backgroundImage1.src = "res/background/beaches2.png";
@@ -82,6 +82,7 @@ var sonicCanvas = document.createElement("canvas");
 sonicCanvas.width = 40;
 sonicCanvas.height = 40;
 var sc = sonicCanvas.getContext("2d");
+sc.imageSmoothingEnabled = false;
 var devMode = false;
 var pToggleDev = false;
 var charNum = 0;
@@ -320,7 +321,20 @@ var imageWidth = 0;
 var fpsCanvi = document.createElement("canvas");
 fpsCanvi.width = 30;
 fpsCanvi.height = 20;
+fpsCanvi.style.imageRendering = "crisp-edges";
+fpsCanvi.style.height = "80px";
+
 var fC = fpsCanvi.getContext("2d");
+
+var debugInterface = document.createElement("div")
+debugInterface.style.position = "absolute";
+debugInterface.style.background = "#FFFFFF55";
+debugInterface.style.color = "black";
+debugInterface.style.zIndex = "99999";
+debugInterface.style.bottom = "0";
+debugInterface.style.left = "0";
+debugInterface.style.width = "25vw";
+document.body.appendChild(debugInterface)
 
 function loader(){
 	var img = chunkBacklog.shift();
@@ -333,8 +347,8 @@ function loader(){
 //window.requestAnimationFrame(loop);
 var gameStarted = false;
 var startGame = function(){
-	window.setInterval(loop,17);
-	//window.setTimeout(loop,17);
+	//window.setInterval(loop,17);
+	window.setTimeout(loop,17);
     fullscreen();
 	gameStarted = true;
 }
@@ -1089,12 +1103,13 @@ function physics(){
 }
 
 var pCharPos = {x:char.x,y:char.y}
+var a,b;
 
 function drawChar(){
 //draw Character
 	//console.log("sonic is drawn");
-	var a = (char.currentAnim[Math.floor(char.frameIndex)][2]/2)*((char.Gv<0)?1:-1);
-	var b = -(char.currentAnim[Math.floor(char.frameIndex)][3]);//+15;
+	a = (char.currentAnim[Math.floor(char.frameIndex)][2]/2)*((char.Gv<0)?1:-1);
+	b = -(char.currentAnim[Math.floor(char.frameIndex)][3]);//+15;
 	//var temp = char.angle
 	//char.angle = Math.round(char.angle/(Math.PI/4))*(Math.PI/4); // <-- "classic Angles"
 	//c.translate((cam.x == 0?char.x:((cam.x==(-level[1].length*128+vScreenW))?char.x-level[1].length*128+vScreenW:vScreenW/2+(cam.tx-cam.x)))+a*Math.cos(char.angle)-b*Math.sin(char.angle),  (cam.y >= -15?char.y-15:((cam.y==(-(level.length-1)*128+vScreenH))?(char.y-(level.length-1)*128+vScreenH):vScreenH/2+(cam.ty-cam.y)))+b*Math.cos(char.angle)+a*Math.sin(char.angle));
@@ -1108,13 +1123,13 @@ function drawChar(){
     }
 	if(char.Gv < 0){
 		c.scale(-1,1);
-        mBlurCtx.scale(-1,1);
+		if(motionBlurToggle)
+	        mBlurCtx.scale(-1,1);
 	}
 	sonicCanvas.width = char.currentAnim[Math.floor(char.frameIndex)][2];
 	sonicCanvas.height = char.currentAnim[Math.floor(char.frameIndex)][3];
 	//console.log(sonicCanvas.width+","+sonicCanvas.height)
 	//console.log("translations done")
-	sc.imageSmoothingEnabled = false;
 	if(char.levitate==true&&char.GRV == 0&&char.state == -1){ // draw levitation for silver
 		sc.filter = "invert(50%) sepia(200%) hue-rotate(120deg) brightness(110%) contrast(200%) opacity(100%) blur(2px)";
 		sc.drawImage(sonicImage,-char.currentAnim[Math.floor(char.frameIndex)][0],-char.currentAnim[Math.floor(char.frameIndex)][1]);
@@ -1215,7 +1230,6 @@ function size(e){
 }
 
 var slowmo1 = 0;		// variables for slowing the engine for debugging
-var timeSince = 0;
 var frameStartTime = 0;
 var lastDrawTime = 0;
 
@@ -1224,60 +1238,43 @@ resetLevel();		// reset the game to start out
 function loop(){ // the main game loop
 
 	slowmo1++;
-
-	fpsFactor = (keysDown[67]?1:fpsFactor);
-	//fpsFactor = 2;
 	
 	frameStartTime = performance.now();
 
-	//Date.now()-timeSince > 17
 	if(continue1&&(keysDown[67]?slowmo1%4==0:true)){//allow to freeze for developer purposes if things get too out of hand.
-		timeSince = Date.now()
 		//gamepad controls
-
-		if(navigator.getGamepads().length > 0){
-			console.log("gamepad(s) connected!");
-			gamepads = navigator.getGamepads();
-			for(var i = 0; i < gamepads.length; i++){
-				if(gamepads[i] != undefined){// The only reason why I need this line is because of Chrome. I hate you too, Chrome.
-					if(gamepads[i].buttons[0].pressed){
-						if(keysDown[65] == false){
-							if(char.rolling&&char.currentAnim == anim.spindash){
-								sfxObj2.spindash.load();
-								sfxObj2.spindash.play();
-								char.spindashCharge += 2;
-							}
-							controlPressed({keyCode:65});
+		
+		for(var i = 0; i < gamepads.length; i++){
+			if(gamepads[i] != undefined){// The only reason why I need this line is because of Chrome. I hate you too, Chrome.
+				if(gamepads[i].buttons[0].pressed){
+					if(keysDown[65] == false){
+						if(char.rolling&&char.currentAnim == anim.spindash){
+							sfxObj2.spindash.load();
+							sfxObj2.spindash.play();
+							char.spindashCharge += 2;
 						}
-						keysDown[65] = true;
+						controlPressed({keyCode:65});
 					}
-					else
-					{
-						if(keysDown[65] == true){
-							controlReleased({keyCode:65});
-						}
-						keysDown[65] = false;
-					}
-					keysDown[40] = (gamepads[i].axes[1] > 0.5);
-					keysDown[38] = (gamepads[i].axes[1] < -0.5);
-					keysDown[37] = (gamepads[i].axes[0] < -0.5);
-					keysDown[39] = (gamepads[i].axes[0] > 0.5);	
+					keysDown[65] = true;
 				}
+				else
+				{
+					if(keysDown[65] == true){
+						controlReleased({keyCode:65});
+					}
+					keysDown[65] = false;
+				}
+				keysDown[40] = (gamepads[i].axes[1] > 0.5);
+				keysDown[38] = (gamepads[i].axes[1] < -0.5);
+				keysDown[37] = (gamepads[i].axes[0] < -0.5);
+				keysDown[39] = (gamepads[i].axes[0] > 0.5);	
 			}
 		}
 
-		//camera position
 		//apply velocity before doing all of that collision stuff, or setting the camera position.
 		char.x += char.xv*fpsFactor;
 		char.y += char.yv*fpsFactor;
-		/*if(false&&char.currentAnim[Math.floor(char.frameIndex)]){
-			h1 = char.currentAnim[Math.floor(char.frameIndex)][3];
-		}
-		else
-		{
-			h1 = 30;
-		}*/
-		h1 = 30;
+		var h1 = 30;
 
 		timer++;
 
@@ -1313,8 +1310,8 @@ function loop(){ // the main game loop
 		physics();
 
 		// update the camera after the physics
-		cam.x += clamp((Math.max(Math.min(0,((-char.x-Math.sin(char.angle)*h1/2)+vScreenW/2)),-level[1].length*128+vScreenW)-cam.x),-15,15);
-		cam.y += clamp(Math.max(Math.min(0,(-char.y+Math.cos(char.angle)*h1/2)+vScreenH/2),-(level.length-1)*128+vScreenH)-cam.y,-15,15);//-(level.length-1)*128+vScreenH/3)
+		cam.x += clamp((Math.max(Math.min(0,((-char.x-Math.sin(char.angle)*h1/2)+vScreenW/2)),-level[1].length*128+vScreenW)-cam.x),-15*fpsFactor,15*fpsFactor);
+		cam.y += clamp(Math.max(Math.min(0,(-char.y+Math.cos(char.angle)*h1/2)+vScreenH/2),-(level.length-1)*128+vScreenH)-cam.y,-15*fpsFactor,15*fpsFactor);//-(level.length-1)*128+vScreenH/3)
 		
 		cam.tx = cam.x+debug.camX;
 		cam.ty = cam.y+debug.camY;
@@ -1329,7 +1326,7 @@ function loop(){ // the main game loop
 		
 		lastMillis = newMillis;
 		newMillis = performance.now();
-		fpsFactor = 1;//((newMillis>lastMillis?newMillis-lastMillis:newMillis-(lastMillis-1000))/100)*6;
+		fpsFactor = ((newMillis>lastMillis?newMillis-lastMillis:newMillis-(lastMillis-1000))/100)*6;
 		if(fpsFactor>2){
 			fpsFactor = 2;
 		}
@@ -1345,25 +1342,39 @@ function loop(){ // the main game loop
 		if(devMode){
 			debug.drawAll(cam.tx,cam.ty,c);
 			c.fillStyle = "black";
-			c.fillText("Angle (deg):"+Math.round(char.angle*180/Math.PI).toString(),200,10);
-			c.fillText("Wall state: "+(char.state).toString(),200,20);
-			c.fillText("Hor. Velocity: "+(Math.round(char.Gv*100)/100).toString(),200,30);
-			c.fillText("Vert. Velocity: "+(Math.round(char.yv*100)/100).toString(),200,40);
-			c.fillText("FPS factor: "+fpsFactor,200,50);
-			c.fillText("FPS: "+Math.round(1000/(newMillis>lastMillis?newMillis-lastMillis:newMillis-(lastMillis-1000))).toString(),200,60);
-			c.fillText("Layer: "+(char.layer).toString(),200,70);
+			debugText = "Angle (deg):"+Math.round(char.angle*180/Math.PI).toString()+"<br>";
+			debugText += "Wall state: "+(char.state).toString()+"<br>";
+			debugText += "Hor. Velocity: "+(Math.round(char.Gv*100)/100).toString()+"<br>";
+			debugText += "Vert. Velocity: "+(Math.round(char.yv*100)/100).toString()+"<br>";
+			debugText += "FPS factor: "+fpsFactor+"<br>";
+			debugText += "Layer: "+(char.layer).toString()+"<br>";
+			debugText += "Player Pos.: ("+Math.floor(char.x)+","+Math.floor(char.y)+")<br>";
+			debugText += "FPS:"+Math.round(1000/(newMillis>lastMillis?newMillis-lastMillis:newMillis-(lastMillis-1000))).toString()+"<br>";
+			debugInterface.innerHTML = debugText;
+			debugInterface.appendChild(fpsCanvi);
+
+			// c.fillText("Angle (deg):"+Math.round(char.angle*180/Math.PI).toString(),200,10);
+			// c.fillText("Wall state: "+(char.state).toString(),200,20);
+			// c.fillText("Hor. Velocity: "+(Math.round(char.Gv*100)/100).toString(),200,30);
+			// c.fillText("Vert. Velocity: "+(Math.round(char.yv*100)/100).toString(),200,40);
+			// c.fillText("FPS factor: "+fpsFactor,200,50);
+			// c.fillText("Layer: "+(char.layer).toString(),200,70);
 			//c.fillText(char.pHoming,200,60);
-			c.fillText("Player Pos.: ("+Math.floor(char.x)+","+Math.floor(char.y)+")",200,90);
+			// c.fillText("Player Pos.: ("+Math.floor(char.x)+","+Math.floor(char.y)+")",200,90);
+			
+			var fpsNo = Math.round(1000/(newMillis>lastMillis?newMillis-lastMillis:newMillis-(lastMillis-1000)));
 			fC.drawImage(fpsCanvi,-1,0);
 			fC.fillStyle = "#000000";
 			fC.fillRect(29,0,1,20);
-			fC.fillStyle = "#009900";
+			fC.fillStyle = fpsNo > 50?"#009900":fpsNo > 30?"#999900":"#990000";
 			fC.fillRect(29,20-(1000/(newMillis>lastMillis?newMillis-lastMillis:newMillis-(lastMillis-1000)))/3,1,(1000/(newMillis>lastMillis?newMillis-lastMillis:newMillis-(lastMillis-1000)))/3);
-			c.drawImage(fpsCanvi,0,200);
+			//c.drawImage(fpsCanvi,0,200);
+			//c.fillText(Math.round(1000/(newMillis>lastMillis?newMillis-lastMillis:newMillis-(lastMillis-1000))).toString(),0,210);
 		}
 		else
 		{
 			debug.clearAll();
+			debugInterface.innerHTML = "";
 		}
 
 		c.textAlign = "left";
@@ -1392,8 +1403,7 @@ function loop(){ // the main game loop
 
 		}
 	}
-	//console.
-	//window.requestAnimationFrame(loop);
+
 	if(keysDown[13]&&introAnim >= 120){
 		if(!pausePressed){
 			continue1 = !continue1;
@@ -1404,6 +1414,7 @@ function loop(){ // the main game loop
 	{
 		pausePressed = false;
 	}
+	window.setTimeout(loop,16-(performance.now()-frameStartTime));
 }
 
 function drawMBlur(){
@@ -1697,8 +1708,10 @@ canvi.addEventListener("touchend",function(e){
 	updateTouch(e.touches);
 });
 
+window.addEventListener("gamepadconnected",function(e){
+	gamepads = navigator.getGamepads();
+})
 
-//   ^ - 
-// <   >
-// |---| -- 32
-
+window.addEventListener("gamepaddisconnected",function(e){
+	gamepads = navigator.getGamepads();
+})
