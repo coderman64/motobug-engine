@@ -334,6 +334,7 @@ debugInterface.style.zIndex = "99999";
 debugInterface.style.bottom = "0";
 debugInterface.style.left = "0";
 debugInterface.style.width = "25vw";
+debugInterface.style.fontFamily = "monospace";
 document.body.appendChild(debugInterface)
 
 function loader(){
@@ -1342,14 +1343,14 @@ function loop(){ // the main game loop
 		if(devMode){
 			debug.drawAll(cam.tx,cam.ty,c);
 			c.fillStyle = "black";
-			debugText = "Angle (deg):"+Math.round(char.angle*180/Math.PI).toString()+"<br>";
+			debugText = "<strong>Angle (deg):"+Math.round(char.angle*180/Math.PI).toString()+"<br>";
 			debugText += "Wall state: "+(char.state).toString()+"<br>";
 			debugText += "Hor. Velocity: "+(Math.round(char.Gv*100)/100).toString()+"<br>";
 			debugText += "Vert. Velocity: "+(Math.round(char.yv*100)/100).toString()+"<br>";
 			debugText += "FPS factor: "+fpsFactor+"<br>";
 			debugText += "Layer: "+(char.layer).toString()+"<br>";
 			debugText += "Player Pos.: ("+Math.floor(char.x)+","+Math.floor(char.y)+")<br>";
-			debugText += "FPS:"+Math.round(1000/(newMillis>lastMillis?newMillis-lastMillis:newMillis-(lastMillis-1000))).toString()+"<br>";
+			debugText += "FPS:"+Math.round(1000/(newMillis>lastMillis?newMillis-lastMillis:newMillis-(lastMillis-1000))).toString()+"</strong><br>";
 			debugInterface.innerHTML = debugText;
 			debugInterface.appendChild(fpsCanvi);
 
