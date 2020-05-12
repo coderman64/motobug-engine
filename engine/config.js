@@ -1,0 +1,4 @@
+
+var configuration = {
+    classicAngles: false,
+}

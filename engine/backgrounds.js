@@ -3,37 +3,55 @@
 //
 var cBack = 0;
 
+var back1CanvasList = [];
+
+
 function back1(c){
-    bkgAnim++;
-	var bkg = backgroundImage1;
+	var backList1 = [backgroundImage1,backgroundImage2,backgroundImage3];
+	if(back1CanvasList.length < 1){
+		for(var i = 0; i < 50; i++){
+			var thisList = [];
+			for(var x = 0; x < 3; x++){
+				var canvi2 = document.createElement("canvas");
+				canvi2.width = 320;
+				canvi2.height = 5;
+				contex = canvi2.getContext("2d");
+				contex.drawImage(backList1[x],0,-((i*4)%120+115));
+				thisList.push(canvi2)
+			}
+			back1CanvasList.push(thisList);
+		}
+	}
+	bkgAnim++;
+	var bkg = 0;
 	if(bkgAnim > 60){
 		bkgAnim = 0;
 	}
 	if(bkgAnim > 40){
-		bkg = backgroundImage3;
+		bkg = 2;
 	}
 	else if(bkgAnim > 20){
-		bkg = backgroundImage2;
+		bkg = 1;
 	}
 	else{
-		bkg = backgroundImage1;
+		bkg = 0;
 	}
 	imgWidth = vScreenH*4/3;
-	c.drawImage(bkg,Math.floor(cam.tx/5)%imgWidth,0,vScreenH*4/3+1,vScreenH);
-	c.drawImage(bkg,Math.floor(cam.tx/5)%imgWidth+vScreenH*4/3,0,vScreenH*4/3,vScreenH);
-	c.drawImage(bkg,Math.floor(cam.tx/5)%imgWidth+vScreenH*8/3-1,0,vScreenH*4/3,vScreenH);
+	c.drawImage(backList1[bkg],Math.floor(cam.tx/5)%imgWidth,0,vScreenH*4/3+1,vScreenH);
+	c.drawImage(backList1[bkg],Math.floor(cam.tx/5)%imgWidth+vScreenH*4/3,0,vScreenH*4/3,vScreenH);
+	c.drawImage(backList1[bkg],Math.floor(cam.tx/5)%imgWidth+vScreenH*8/3-1,0,vScreenH*4/3,vScreenH);
 
 	sonicCanvas.width = 320;
 	sonicCanvas.height = 5;
 	//var sc = sonicCanvas.getContext("2d");
 	for(var i = 0; i<50; i++){
-		sc.drawImage(bkg,0,-((i*4)%120+115));
+		//sc.drawImage(bkg,0,-((i*4)%120+115));
 		//sc.fillStyle = "red";
 		//sc.fillRect(0,0,320,320);
 		//c.drawImage(sonicCanvas,0,0);
-		c.drawImage(sonicCanvas,(Math.floor(cam.tx/(5/(i/33+1)))%(imgWidth)),(i*4+153)*(vScreenH/320),vScreenH*4/3+1,vScreenH/60);
-		c.drawImage(sonicCanvas,(Math.floor(cam.tx/(5/(i/33+1)))%(imgWidth))+imgWidth,(i*4+153)*(vScreenH/320),vScreenH*4/3+1,vScreenH/60);
-		c.drawImage(sonicCanvas,(Math.floor(cam.tx/(5/(i/33+1)))%(imgWidth))+imgWidth*2,(i*4+153)*(vScreenH/320),vScreenH*4/3+1,vScreenH/60);
+		c.drawImage(back1CanvasList[i][bkg],(Math.floor(cam.tx/(5/(i/33+1)))%(imgWidth)),(i*4+153)*(vScreenH/320),vScreenH*4/3+1,vScreenH/60);
+		c.drawImage(back1CanvasList[i][bkg],(Math.floor(cam.tx/(5/(i/33+1)))%(imgWidth))+imgWidth,(i*4+153)*(vScreenH/320),vScreenH*4/3+1,vScreenH/60);
+		c.drawImage(back1CanvasList[i][bkg],(Math.floor(cam.tx/(5/(i/33+1)))%(imgWidth))+imgWidth*2,(i*4+153)*(vScreenH/320),vScreenH*4/3+1,vScreenH/60);
 	}
 }
 
@@ -48,16 +66,26 @@ var MGHImg = newImage("res/background/mgh1.png")
 
 var moveVal = [100,10,10,5];
 
+var back2MotDet = 0;
+var back2Canvi = document.createElement("canvas");
+var back2ctx = back2Canvi.getContext("2d");
+back2Canvi.style.imageRendering = "pixelated";
 function back2(c){
-	c.fillStyle = "#0044AA"
-	c.fillRect(0,0,vScreenW,vScreenH);
-    c.imageSmoothingEnabled = false;
-    imgWidth = vScreenH*16/9;
-    for(var i = 0; i < lbImg.length; i++){
-        c.drawImage(lbImg[i],Math.floor(cam.tx/(moveVal[i]))%imgWidth,0,vScreenH*16/9+1,vScreenH);
-        c.drawImage(lbImg[i],Math.floor(cam.tx/(moveVal[i]))%imgWidth+vScreenH*16/9,0,vScreenH*16/9,vScreenH);
-        c.drawImage(lbImg[i],Math.floor(cam.tx/(moveVal[i]))%imgWidth+vScreenH*32/9-1,0,vScreenH*16/9,vScreenH);
-    }
+	imgWidth = vScreenH*16/9;
+	if(Math.floor(cam.tx/(moveVal[i]))%imgWidth != back2MotDet){
+		back2Canvi.width = vScreenW;
+		back2Canvi.height = vScreenH;
+		back2ctx.fillStyle = "#0044AA"
+		back2ctx.fillRect(0,0,vScreenW,vScreenH);
+		back2ctx.imageSmoothingEnabled = false;
+		for(var i = 0; i < lbImg.length; i++){
+			back2ctx.drawImage(lbImg[i],Math.floor(cam.tx/(moveVal[i]))%imgWidth,0,vScreenH*16/9+1,vScreenH);
+			back2ctx.drawImage(lbImg[i],Math.floor(cam.tx/(moveVal[i]))%imgWidth+vScreenH*16/9,0,vScreenH*16/9,vScreenH);
+			back2ctx.drawImage(lbImg[i],Math.floor(cam.tx/(moveVal[i]))%imgWidth+vScreenH*32/9-1,0,vScreenH*16/9,vScreenH);
+		}
+		back2MotDet = Math.floor(cam.tx/(moveVal[i]))%imgWidth;
+	}
+	c.drawImage(back2Canvi,0,0);
 }
 
 var psychParts = [];

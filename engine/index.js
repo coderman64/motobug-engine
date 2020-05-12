@@ -1111,12 +1111,17 @@ function drawChar(){
 	//console.log("sonic is drawn");
 	a = (char.currentAnim[Math.floor(char.frameIndex)][2]/2)*((char.Gv<0)?1:-1);
 	b = -(char.currentAnim[Math.floor(char.frameIndex)][3]);//+15;
-	//var temp = char.angle
-	//char.angle = Math.round(char.angle/(Math.PI/4))*(Math.PI/4); // <-- "classic Angles"
+	var temp = 0;
+	if(configuration.classicAngles){
+		temp = char.angle
+		char.angle = Math.round(char.angle/(Math.PI/4))*(Math.PI/4); // <-- "classic Angles"
+	}
 	//c.translate((cam.x == 0?char.x:((cam.x==(-level[1].length*128+vScreenW))?char.x-level[1].length*128+vScreenW:vScreenW/2+(cam.tx-cam.x)))+a*Math.cos(char.angle)-b*Math.sin(char.angle),  (cam.y >= -15?char.y-15:((cam.y==(-(level.length-1)*128+vScreenH))?(char.y-(level.length-1)*128+vScreenH):vScreenH/2+(cam.ty-cam.y)))+b*Math.cos(char.angle)+a*Math.sin(char.angle));
 	c.translate(char.x+cam.x+a*Math.cos(char.angle)-b*Math.sin(char.angle),char.y+cam.y+b*Math.cos(char.angle)+a*Math.sin(char.angle));
 	c.rotate(char.angle);
-	//char.angle = temp;
+	if(configuration.classicAngles){
+		char.angle = temp;
+	}
     if(motionBlurToggle){
         //mBlurCtx.translate((vScreenW/2+(cam.tx-cam.x))+a*Math.cos(char.angle)-b*Math.sin(char.angle),vScreenH/2+(cam.ty-cam.y)+b*Math.cos(char.angle)+a*Math.sin(char.angle));
 		mBlurCtx.translate(char.x+cam.x+a*Math.cos(char.angle)-b*Math.sin(char.angle),char.y+cam.y+b*Math.cos(char.angle)+a*Math.sin(char.angle))
@@ -1310,10 +1315,20 @@ function loop(){ // the main game loop
 		//----------------------------------PHYSICS-----------------------------------
 		physics();
 
+		var temp = 0;
+		if(configuration.classicAngles){
+			var temp = char.angle
+			char.angle = Math.round(char.angle/(Math.PI/4))*(Math.PI/4); // <-- "classic Angles"
+		}
+
 		// update the camera after the physics
 		cam.x += clamp((Math.max(Math.min(0,((-char.x-Math.sin(char.angle)*h1/2)+vScreenW/2)),-level[1].length*128+vScreenW)-cam.x),-15*fpsFactor,15*fpsFactor);
 		cam.y += clamp(Math.max(Math.min(0,(-char.y+Math.cos(char.angle)*h1/2)+vScreenH/2),-(level.length-1)*128+vScreenH)-cam.y,-15*fpsFactor,15*fpsFactor);//-(level.length-1)*128+vScreenH/3)
 		
+		if(configuration.classicAngles){
+			char.angle = temp;
+		}
+
 		cam.tx = cam.x+debug.camX;
 		cam.ty = cam.y+debug.camY;
 		
