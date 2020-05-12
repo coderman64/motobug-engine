@@ -212,6 +212,8 @@ var spikes = function(x,y,w,h,src,angle){
     }
 }
 
+var ringAlternate = false;
+
 var ring = function(x,y,w,h,src){
     this.x = x;
     this.y = y;
@@ -229,14 +231,16 @@ var ring = function(x,y,w,h,src){
         if(!this.disable){
             char.rings++;
             this.disable = true;
-            if(itemSFX && itemSFX.currentTime > 0 && itemSFX.paused && itemSFX.ended && itemSFX.readyState > 2){
+            if(!ringAlternate){
                 itemSFX.src = "res/sfx/ring.wav";
                 itemSFX.play();
+                ringAlternate = true;
             }
             else
             {
                 itemSFX2.src = "res/sfx/ring.wav";
                 itemSFX2.play();
+                ringAlternate = false;
             }
         }
     }
@@ -278,14 +282,17 @@ var hitRing = function(x,y,w,h,src,vX,vY){
         if(this.timer > 10){
             char.rings++;
             this.destroy = true;
-            if(itemSFX && (itemSFX.paused || itemSFX.ended)){
+            if(!ringAlternate){
                 itemSFX.src = "res/sfx/ring.wav";
                 itemSFX.play();
+                itemSFX.audio
+                ringAlternate = true;
             }
             else
             {
                 itemSFX2.src = "res/sfx/ring.wav";
                 itemSFX2.play();
+                ringAlternate = false;
             }
         }
     }

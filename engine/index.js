@@ -23,16 +23,35 @@ var playMusic = function(){
 }
 
 var sfxObj = {
-	airDash:"res/sfx/airDash.mp3",
-	death:"res/sfx/death.mp3",
-	explosion:"res/sfx/Explosion.mp3",
+	airDash:"res/sfx/airDash.wav",
+	death:"res/sfx/death.wav",
+	explosion:"res/sfx/Explosion.wav",
 	jump:"res/sfx/jump.wav",
-	looseRings:"res/sfx/looseRings.mp3",
-	ring:"res/sfx/ring.mp3",
+	looseRings:"res/sfx/looseRings.wav",
+	ring:"res/sfx/ring.wav",
 	spindash:"res/sfx/spindash.wav",
-	spring2: "res/sfx/spring2.mp3",
+	spring2: "res/sfx/spring2.wav",
 }
 
+var sfxObj2 = {
+	airDash:document.createElement("audio"),
+	death:document.createElement("audio"),
+	explosion:document.createElement("audio"),
+	jump:document.createElement("audio"),
+	looseRings:document.createElement("audio"),
+	ring:document.createElement("audio"),
+	spindash:document.createElement("audio"),
+	spring2:document.createElement("audio"),
+}
+sfxObj2.airDash.src = "res/sfx/airDash.wav";
+sfxObj2.death.src = "res/sfx/death.wav";
+sfxObj2.explosion.src = "res/sfx/Explosion.wav";
+sfxObj2.jump.src = "res/sfx/jump.wav";
+sfxObj2.looseRings.src = "res/sfx/looseRings.wav";
+sfxObj2.ring.src = "res/sfx/ring.wav";
+sfxObj2.spindash.src = "res/sfx/spindash.wav";
+sfxObj2.spindash.volume = 0.8;
+sfxObj2.spring2.src = "res/sfx/spring2.wav";
 var sfx = document.createElement("audio");
 sfx.src = sfxObj.jump;
 sfx.volume = 0.8;
@@ -353,8 +372,9 @@ function controls(){
 		char.x += 30*Math.sin(char.angle);
 		char.jumpState = 1;
 		char.pHoming = false;
-		sfx.src = sfxObj.jump;
-		sfx.play();
+		//sfx.src = sfxObj.jump;
+		sfxObj2.jump.load();
+		sfxObj2.jump.play();
 		char.pDropDash = false;
 		char.dropCharge = 0;
 		char.pJump = true;
@@ -450,8 +470,9 @@ function controls(){
 			if(!(keysDown[86]&&devMode)&&keysDown[40]){
 				if(Math.abs(char.Gv)>0.001){
 					char.rolling = true;
-					sfx.src = sfxObj.spindash;
-					sfx.play();
+					//sfx.src = sfxObj.spindash;
+					sfxObj2.spindash.load();
+					sfxObj2.spindash.play();
 				}
 				else
 				{
@@ -460,8 +481,9 @@ function controls(){
 						char.animSpeed = 1;
 						char.rolling = true;
 						char.spindashCharge = 0;
-						sfx.src = sfxObj.spindash;
-						sfx.play();
+						//sfx.src = sfxObj.spindash;
+						sfxObj2.spindash.load();
+						sfxObj2.spindash.play();
 					}
 					else
 					{
@@ -496,8 +518,10 @@ function controls(){
 			if(keysDown[40] == false){
 				char.currentAnim = anim.jump;
 				char.Gv = (8 + (Math.floor(char.spindashCharge) / 2))*(char.goingLeft == true?1:-1)
-				sfx.src = sfxObj.airDash;
-				sfx.play();
+				//sfx.src = sfxObj.airDash;
+				sfxObj2.airDash.load();
+				sfxObj2.airDash.play();
+				sfxObj2.spindash.pause();
 			}
 		}
 		if(Math.abs(char.Gv) > 16){
@@ -895,8 +919,10 @@ function physics(){
 					char.Gv = Math.min(char.Gv/2+8*(char.goingLeft?1:-1),12);
 					char.rolling = true;
 					char.dropCharge = 0;
-					sfx.src = sfxObj.airDash;
-					sfx.play();
+					//sfx.src = sfxObj.airDash;
+					sfxObj2.airDash.load();
+					sfxObj2.airDash.play();
+					sfxObj2.spindash.pause();
 				}
 			}
 		}
@@ -924,8 +950,10 @@ function physics(){
 					char.Gv = Math.min(char.Gv/2+8*(char.goingLeft?1:-1),12);
 					char.rolling = true
 					char.dropCharge = 0;
-					sfx.src = sfxObj.airDash;
-					sfx.play();
+					//sfx.src = sfxObj.airDash;
+					sfxObj2.airDash.load();
+					sfxObj2.airDash.play();
+					sfxObj2.spindash.pause();
 				}
 			}
 		}
@@ -1034,8 +1062,9 @@ function physics(){
 		char.rings = 0;
 		char.invincible = 240;
 		// play lost rings sound
-		sfx.src = sfxObj.looseRings;
-		sfx.play();
+		//sfx.src = sfxObj.looseRings;
+		sfxObj2.looseRings.load();
+		sfxObj2.looseRings.play();
 	}
 	if(char.hurt&&char.invincible > 0)
 	{
@@ -1047,8 +1076,9 @@ function physics(){
 	if (char.dropCharge >= 10 && char.state == -1&&char.jumpState == 1){
 		char.currentAnim = anim.dropDash;
 		if(char.dropCharge == 20){
-			sfx.src = sfxObj.spindash;
-			sfx.play();
+			//sfx.src = sfxObj.spindash;
+			sfxObj2.spindash.load();
+			sfxObj2.spindash.play();
 		}
 	}
 
@@ -1210,10 +1240,8 @@ function loop(){ // the main game loop
 					if(gamepads[i].buttons[0].pressed){
 						if(keysDown[65] == false){
 							if(char.rolling&&char.currentAnim == anim.spindash){
-								sfx.src = "";
-								sfx.src = sfxObj.spindash;
-								sfx.currentTime = 0;
-								sfx.play();
+								sfxObj2.spindash.load();
+								sfxObj2.spindash.play();
 								char.spindashCharge += 2;
 							}
 							controlPressed({keyCode:65});
@@ -1413,8 +1441,9 @@ function controlPressed(e){
 				}
 			}
 			level[0][level[0].length] = new effect(char.x-12,char.y-32,25,25,"res/characters/sonic/speedDash.png",5);
-			sfx.src = sfxObj.airDash;
-			sfx.play();
+			//sfx.src = sfxObj.airDash;
+			sfxObj2.airDash.load();
+			sfxObj2.airDash.play();
 		}
 	}
 	if(char.levitate == true&&char.state == -1&&char.jumpState == 1){
@@ -1500,10 +1529,11 @@ function updateTouch(touches){
 	if(touch2.x > 950 && touch2.x < 1100 && touch2.y > 450 && touch2.y < 600 && touch2.total > 0){//jump button
 		if(keysDown[65] == false){
 			if(char.rolling&&char.currentAnim == anim.spindash){
-				sfx.src = "";
-				sfx.src = sfxObj.spindash;
-				sfx.currentTime = 0;
-				sfx.play();
+				// sfx.src = "";
+				// sfx.src = sfxObj.spindash;
+				// sfx.currentTime = 0;
+				sfxObj2.spindash.load();
+				sfxObj2.spindash.play();
 				char.spindashCharge += 2;
 			}
 			controlPressed({keyCode: 65});
@@ -1610,10 +1640,11 @@ window.addEventListener("keydown",function(e){
 	touchControlsActive = false;
 	console.log(e.keyCode);
 	if(e.keyCode == 65&&char.rolling&&char.currentAnim == anim.spindash){
-		sfx.src = "";
-		sfx.src = sfxObj.spindash;
-		sfx.currentTime = 0;
-		sfx.play();
+		// sfx.src = "";
+		// sfx.src = sfxObj.spindash;
+		// sfx.currentTime = 0;
+		sfxObj2.spindash.load();
+		sfxObj2.spindash.play();
 		char.spindashCharge += 2;
 	}
 	controlPressed(e);
