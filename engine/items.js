@@ -89,6 +89,69 @@ var spring = function(x,y,w,h,src,power,angle){
     }
 }
 
+var hiddenSpring = function(x,y,w,h,src,power,angle){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.img = newImage(src);
+    this.power = power;
+    this.canvi = document.createElement("canvas");
+    this.canvi.width = this.w;
+    this.canvi.height = this.h;
+    this.c = this.canvi.getContext("2d");
+    this.frame = 1;
+    this.destroy = false;
+    this.targetable = false;
+    this.hrid = "hiddenSpring";
+    this.hit = function(char){
+        // if(char.state != -1 &&char.yv < 0.1&&char.y-this.y > 10){
+        //     if(char.x < this.x+this.w/2){
+        //         char.x = this.x-15;
+        //         char.Gv = 0.001;
+        //         if(keysDown[39]){
+        //             char.animSpeed = 0.05;
+        //             char.currentAnim = anim.push;
+        //         }
+        //     }
+        //     if(char.x > this.x+this.w/2){
+        //         char.x = this.x+this.w+15;
+        //         char.Gv = -0.001;
+        //         if(keysDown[37]){
+        //             char.animSpeed = 0.05;
+        //             char.currentAnim = anim.push;
+        //         }
+        //     }
+        // }
+        if(char.y+char.yv > this.y)
+        {
+            char.state = -1;
+            char.Gv = char.xv;
+            char.yv = -this.power;
+            char.y -= 6;
+            this.frame = 1;
+            char.jumpState = 3;
+            itemSFX.src = "res/sfx/spring2.wav";
+            itemSFX.play();
+            if(char.pHoming == true){
+                char.pHoming = false;
+            }
+        }
+    }
+    this.draw = function(ctx,camx,camy){
+        if(this.frame > 0){
+            this.frame += 0.25;
+            if(this.frame >= 4){
+                this.frame = 0;
+            }
+        }
+        debug.addRect(this.x,this.y+16,this.w,this.h-16,"#00FF00AA")
+        this.c.clearRect(0,0,this.w,this.h);
+        this.c.drawImage(this.img,-Math.floor(this.frame)*this.w,0);
+        ctx.drawImage(this.canvi,this.x+camx,this.y+camy,this.w,this.h);
+    }
+}
+
 var downSpring = function(x,y,w,h,src,power,angle){
     this.x = x;
     this.y = y;
