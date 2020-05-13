@@ -1137,15 +1137,24 @@ function drawChar(){
 	//console.log(sonicCanvas.width+","+sonicCanvas.height)
 	//console.log("translations done")
 	if(char.levitate==true&&char.GRV == 0&&char.state == -1){ // draw levitation for silver
-		sc.filter = "invert(50%) sepia(200%) hue-rotate(120deg) brightness(110%) contrast(200%) opacity(100%) blur(2px)";
-		sc.drawImage(sonicImage,-char.currentAnim[Math.floor(char.frameIndex)][0],-char.currentAnim[Math.floor(char.frameIndex)][1]);
-		sc.filter = "sepia(0%)";
+		//sc.filter = "invert(50%) sepia(200%) hue-rotate(120deg) brightness(110%) contrast(200%) opacity(100%) blur(2px)";
+		//sc.drawImage(sonicImage,-char.currentAnim[Math.floor(char.frameIndex)][0],-char.currentAnim[Math.floor(char.frameIndex)][1]);
+		//sc.filter = "sepia(0%)";
 		sc.drawImage(sonicImage,-char.currentAnim[Math.floor(char.frameIndex)][0],-char.currentAnim[Math.floor(char.frameIndex)][1]);
 		sc.filter = "sepia(200%) hue-rotate(120deg) brightness(80%) contrast(200%) opacity(50%)";
 	}
 	sc.drawImage(sonicImage,-char.currentAnim[Math.floor(char.frameIndex)][0],-char.currentAnim[Math.floor(char.frameIndex)][1]);
 	if(char.invincible %10 < 5){
+		if(char.levitate==true&&char.GRV == 0&&char.state == -1){ // draw levitation for silver
+			c.shadowBlur=3+Math.sin(Date.now()/500)*2;
+			c.shadowColor="#00FFFF";
+		}
 		c.drawImage(sonicCanvas,0,0);
+		if(char.levitate==true&&char.GRV == 0&&char.state == -1){ // draw levitation for silver
+			c.shadowBlur=0;
+			c.shadowColor="#00000000";
+		}
+		
         if(motionBlurToggle&&Math.sqrt(char.xv**2+char.yv**2) >= char.TOP){
             //mBlurCtx.globalAlpha = "1";
             mBlurCtx.drawImage(sonicCanvas,0,0);

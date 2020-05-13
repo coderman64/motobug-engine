@@ -316,7 +316,7 @@ var ring = function(x,y,w,h,src){
             }
             this.c.clearRect(0,0,this.w,this.h);
             this.c.drawImage(this.img,-Math.floor(this.frame)*this.w,0);
-            ctx.drawImage(this.canvi,this.x+camx,this.y+camy,this.w,this.h);
+            ctx.drawImage(this.canvi,this.x+camx,this.y+camy);
         }
     }
     this.reset = function(){
