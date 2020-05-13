@@ -116,7 +116,7 @@ var checkerOffset = {x:0,y:0,s:40,angle:0};
 
 function psychBack(c){
 	if(psychParts.length < 1){
-		for(var i = 0; i < 20; i++){
+		for(var i = 0; i < 10; i++){
 			psychParts.push([Math.random()*vScreenW,Math.random()*vScreenH,Math.random()*5-2.5,Math.random()*5-2.5,Math.random()*360,Math.random()*5-2.5])
 		}
 		starCanvi.width = vScreenW;
@@ -148,16 +148,14 @@ function psychBack(c){
 		c.fill()
 	}
 	c.save();
-	c.translate(vScreenW/2+Math.floor(cam.tx/3),vScreenH/2);
+	c.translate(vScreenW/2+Math.floor(cam.tx/3),vScreenH/2+Math.floor(cam.ty/3));
 	c.rotate(checkerOffset.angle);
 	//checkerOffset.x += Math.sin(Date.now()/1000);
 	//checkerOffset.y += Math.cos(Date.now()/1000);
 	//checkerOffset.s = 80*Math.cos(Date.now()/3250+22);
 	checkerOffset.angle = Math.PI/3;//2*Math.cos(Date.now()/5560-43);
-	var xStart = -Math.round(Math.floor(cam.tx/3)*Math.cos(checkerOffset.angle)/40)
-	console.log("xStart: "+xStart.toString())
-	var yStart = Math.round(Math.floor(cam.tx/3)*Math.sin(checkerOffset.angle)/80)*2
-	console.log("yStart: "+yStart.toString())
+	var xStart = -Math.round(Math.floor(cam.tx/3)*Math.cos(checkerOffset.angle)/40+Math.floor(cam.ty/3)*Math.sin(checkerOffset.angle)/40)
+	var yStart = Math.round(Math.floor(cam.tx/3)*Math.sin(checkerOffset.angle)/80-Math.floor(cam.ty/3)*Math.cos(checkerOffset.angle)/80)*2
 	for(var x = xStart-8; x < xStart+9; x++){
 		for(var y = yStart-6; y < yStart+7; y += 2){
 			c.fillRect(x*40+checkerOffset.x%80-checkerOffset.s/2,(y+x%2)*40+checkerOffset.y%80-checkerOffset.s/2,checkerOffset.s,checkerOffset.s);
@@ -172,7 +170,6 @@ function MGHBack(c){
 	c.fillRect(0,0,vScreenW,vScreenH);
     c.imageSmoothingEnabled = false;
 	imgWidth = vScreenH*16/9;
-	console.log("HERE!");
 	c.drawImage(MGHImg,Math.floor(cam.tx/(10))%imgWidth,0,vScreenH*16/9+1,vScreenH);
 	c.drawImage(MGHImg,Math.floor(cam.tx/(10))%imgWidth+vScreenH*16/9,0,vScreenH*16/9,vScreenH);
 	c.drawImage(MGHImg,Math.floor(cam.tx/(10))%imgWidth+vScreenH*32/9-1,0,vScreenH*16/9,vScreenH);
@@ -184,3 +181,6 @@ console.log(backFunc)
 function drawBack(c){
     backFunc[cBack](c);
 }
+
+var userBack = document.createElement("script");
+userBack.src = "engine/yourFace.js";
