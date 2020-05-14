@@ -6,8 +6,8 @@ var mBlurCanvi = document.createElement("canvas"); // additional canvas for moti
 
 var mBlurCtx = mBlurCanvi.getContext("2d");
 
-var motionBlurToggle = false;
-var pMotionBlurToggle = false;
+var motionBlurToggle = configuration.mBlurDefault;
+var pMotionBlurToggle = configuration.mBlurDefault;
 
 canvi.style.position = "absolute";
 canvi.style.top = "0px";
@@ -131,17 +131,17 @@ var shadow = {
 	},
 	char:{
 		x:128*1,
-		y:128*5+40,
+		y:128*1+40,
 		Gv:0,//ground velocity
 		xv:0,//x-velocity
 		yv:0,//y-velocity
 		grounded: false,
 		frameIndex:0,
-		currentAnim:anim.stand,
+		currentAnim:this.anim.jump,
 		animSpeed:1,
 		rolling: false,
 		angle:0,
-		state:0, // -1=air state; 0=ground state; 1=right wall state; 2=ceiling state; 3=left wall state;
+		state:-1, // -1=air state; 0=ground state; 1=right wall state; 2=ceiling state; 3=left wall state;
 		//airAnim:0, //0=jump; 1=run; 2=bounceA; 3=falling(after bounce)
 		golock:0, //forces player to go in a certain direction for a certain amount of time
 		goingLeft: true,
@@ -187,11 +187,11 @@ var sonic = {
 		yv:0,//y-velocity
 		grounded: false,
 		frameIndex:0,
-		currentAnim:anim.stand,
+		currentAnim:this.anim.jump,
 		animSpeed:1,
 		rolling: false,
 		angle:0,
-		state:0, // -1=air state; 0=ground state; 1=right wall state; 2=ceiling state; 3=left wall state;
+		state:-1, // -1=air state; 0=ground state; 1=right wall state; 2=ceiling state; 3=left wall state;
 		//airAnim:0, //0=jump; 1=run; 2=bounceA; 3=falling(after bounce)
 		golock:0, //forces player to go in a certain direction for a certain amount of time
 		goingLeft: true,
@@ -237,11 +237,11 @@ var silver = {
 		yv:0,//y-velocity
 		grounded: false,
 		frameIndex:0,
-		currentAnim:anim.stand,
+		currentAnim:this.anim.jump,
 		animSpeed:1,
 		rolling: false,
 		angle:0,
-		state:0, // -1=air state; 0=ground state; 1=right wall state; 2=ceiling state; 3=left wall state;
+		state:-1, // -1=air state; 0=ground state; 1=right wall state; 2=ceiling state; 3=left wall state;
 		//airAnim:0, //0=jump; 1=run; 2=bounceA; 3=falling(after bounce)
 		golock:0, //forces player to go in a certain direction for a certain amount of time
 		goingLeft: true,
@@ -308,7 +308,7 @@ function setChar(newChar){
 var possChars = [sonic,shadow,silver];
 setChar(sonic);
 
-var cam = {x:0, y:0,tx:0,ty:0};
+var cam = {x:0, y:0,tx:0,ty:0,ptx:0,pty:0};
 
 var color = [0,0,0,0];
 var timer = 0;
@@ -608,6 +608,7 @@ function resetLevel(){
 	char.yv = 0;
 	char.xv = 0.001;
 	char.Gv = 0;
+	char.state = -1;
 	char.goingLeft = false;
 	char.frameIndex = 0;
 	char.currentAnim = anim.jump;
@@ -661,6 +662,10 @@ function physics(){
 
 	///////////////////////////////////// MAIN COLLISION //////////////////////
 	if(char.state >= 0 && char.y != NaN){
+		if(char.levitate == true&&char.GRV == 0){
+			console.log("state"+char.state.toString());
+			char.GRV = 0.21875;
+		}
 
 		if(char.state == 0){//if you are on the ground
 			//sense the ground (two lines for angle)
@@ -1106,6 +1111,8 @@ function physics(){
 var pCharPos = {x:char.x,y:char.y}
 var a,b;
 
+var mBlurClearCount = 0;
+
 function drawChar(){
 //draw Character
 	//console.log("sonic is drawn");
@@ -1117,7 +1124,7 @@ function drawChar(){
 		char.angle = Math.round(char.angle/(Math.PI/4))*(Math.PI/4); // <-- "classic Angles"
 	}
 	//c.translate((cam.x == 0?char.x:((cam.x==(-level[1].length*128+vScreenW))?char.x-level[1].length*128+vScreenW:vScreenW/2+(cam.tx-cam.x)))+a*Math.cos(char.angle)-b*Math.sin(char.angle),  (cam.y >= -15?char.y-15:((cam.y==(-(level.length-1)*128+vScreenH))?(char.y-(level.length-1)*128+vScreenH):vScreenH/2+(cam.ty-cam.y)))+b*Math.cos(char.angle)+a*Math.sin(char.angle));
-	c.translate(char.x+cam.x+a*Math.cos(char.angle)-b*Math.sin(char.angle),char.y+cam.y+b*Math.cos(char.angle)+a*Math.sin(char.angle));
+	c.translate((char.x+cam.x+a*Math.cos(char.angle)-b*Math.sin(char.angle)),(char.y+cam.y+b*Math.cos(char.angle)+a*Math.sin(char.angle)));
 	c.rotate(char.angle);
 	if(configuration.classicAngles){
 		char.angle = temp;
@@ -1170,9 +1177,14 @@ function drawChar(){
 	c.setTransform(1,0,0,1,0,0);//reset transformations
     if(motionBlurToggle){
         mBlurCtx.setTransform(1,0,0,1,0,0);//reset transformations
-        //mBlurCtx.filter = "blur(0.5px)";
-        mBlurCtx.globalAlpha = "1";
-        mBlurCtx.drawImage(mBlurCanvi,-char.xv,-char.yv);
+		//mBlurCtx.filter = "blur(0.5px)";
+		mBlurClearCount++;
+		if(mBlurClearCount >= 20){
+			mBlurCtx.filter = "contrast(110%)";
+			mBlurClearCount = 0;
+		}
+        mBlurCtx.drawImage(mBlurCanvi,cam.tx-cam.ptx,cam.ty-cam.pty);
+		mBlurCtx.filter = "";
         //mBlurCtx.filter = "";
     }
 }
@@ -1258,7 +1270,7 @@ function loop(){ // the main game loop
 
 	if(continue1&&(keysDown[67]?slowmo1%4==0:true)){//allow to freeze for developer purposes if things get too out of hand.
 		//gamepad controls
-		
+
 		for(var i = 0; i < gamepads.length; i++){
 			if(gamepads[i] != undefined){// The only reason why I need this line is because of Chrome. I hate you too, Chrome.
 				if(gamepads[i].buttons[0].pressed){
@@ -1322,7 +1334,8 @@ function loop(){ // the main game loop
 		controls();
 
 		//----------------------------------PHYSICS-----------------------------------
-		physics();
+		if(introAnim > 70)
+			physics();
 
 		var temp = 0;
 		if(configuration.classicAngles){
@@ -1377,6 +1390,10 @@ function loop(){ // the main game loop
 			debugText += "FPS:"+Math.round(1000/(newMillis>lastMillis?newMillis-lastMillis:newMillis-(lastMillis-1000))).toString()+"</strong><br>";
 			debugInterface.innerHTML = debugText;
 			debugInterface.appendChild(fpsCanvi);
+			if(motionBlurToggle){
+				mBlurCanvi.style.height = "80px";
+				debugInterface.appendChild(mBlurCanvi);
+			}
 
 			// c.fillText("Angle (deg):"+Math.round(char.angle*180/Math.PI).toString(),200,10);
 			// c.fillText("Wall state: "+(char.state).toString(),200,20);
@@ -1407,12 +1424,15 @@ function loop(){ // the main game loop
 		c.fillText("RINGS: "+char.rings.toString(),21,21);
 		c.fillStyle = "white";
 		c.fillText("RINGS: "+char.rings.toString(),20,20);
+
+		cam.ptx = cam.tx;
+		cam.pty = cam.ty;
         
 		if(touchControlsActive){
 			c.fillStyle = "#55555555";
 			c.fillRect(10,350/3,100,100);
 			c.fillRect(950/3,450/3,50,50);
-			c.fillStyle = "#990000";
+			c.fillStyle = "#44444499";
 			if(keysDown[39]){
 				c.fillRect(180/3,425/3,50,50);
 			}
@@ -1446,7 +1466,7 @@ function drawMBlur(){
     if(motionBlurToggle){ // motion blur (optional)
         c.globalCompositeOperation = "lighter";
         c.globalAlpha = "0.9";
-        mBlurCtx.fillStyle = "rgba(0,0,0,0.2)"//"+Math.max(0,Math.min(1,1-(Math.sqrt(char.xv^2+char.yv^2)*2-char.TOP+1))).toString()+")";
+        mBlurCtx.fillStyle = "rgba(2,2,2,0.2)"//"+Math.max(0,Math.min(1,1-(Math.sqrt(char.xv^2+char.yv^2)*2-char.TOP+1))).toString()+")";
         mBlurCtx.fillRect(0,0,vScreenW,vScreenH);      // clear motion blur if you aren't moving fast enough
         c.drawImage(mBlurCanvi,0,0);//0.5+Math.floor((char.x+Math.sin(char.angle)*h1/2)-vScreenW/2-(char.xv*2))+cam.x,0.5+(char.y-Math.cos(char.angle)*h1/2)-vScreenH/2-(char.yv*2)+cam.y);
         c.globalAlpha = "1";

@@ -11,6 +11,7 @@
     <canvas id="canvi" width="640" height="128" style="background: black; border: 1px solid #00000055; width: 2560px;"></canvas>
     <div style="background:#FFFFFF99;position:fixed;top:5px;left:5px;">
         <input type="checkbox" id="eA">enable angles</input>
+        <input type="number" id="numBox" min="0" max="0"></input>
     </div>
     <script></script>
     <script>
@@ -28,11 +29,14 @@
         var c = canvi.getContext("2d");
         c.imageSmoothingEnabled = false;
         var eACheck = document.getElementById("eA");
+        var numBox = document.getElementById("numBox");
+        numBox.max = chunks.length-1;
         var tileIndex = 10;
         var enableAngles = true;
 
         window.setInterval(draw, 17);
         function draw() {
+            tileIndex = numBox.value;
             enableAngles = eACheck.checked;
             c.fillStyle = "black";
             c.fillRect(0, 0, 640, 128);
