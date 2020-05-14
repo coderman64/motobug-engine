@@ -183,4 +183,5 @@ function drawBack(c){
 }
 
 var userBack = document.createElement("script");
-userBack.src = "engine/yourFace.js";
+userBack.src = "res/user_backgrounds.js";
+document.body.appendChild(userBack);

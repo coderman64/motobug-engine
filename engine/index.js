@@ -911,7 +911,7 @@ function physics(){
 
 
 		/// LANDING (LEFT SENSOR) ///
-		if(backSense[0] == true && backSense[1] < char.y+rotY+char.yv && (frontSense[0]==true?backSense[1] <= frontSense[1]:true)&& (Math.abs(char.angle%(Math.PI*2)) < Math.PI/2&&char.yv > 0)){
+		if(backSense[0] == true && backSense[1] < char.y+rotY+char.yv && (frontSense[0]==true?backSense[1] <= frontSense[1]:true)&& (Math.abs(char.angle%(Math.PI*2)) < Math.PI/2&&char.yv >= 0)){
 			console.log("foot1: "+(Math.abs(char.angle%(Math.PI*2))*180/Math.PI).toString());
 			if(Math.abs(backSense[2]) < 80){
 				if(frontSense[2] > 45 && backSense[2] > 45){
@@ -942,7 +942,7 @@ function physics(){
 			}
 		}
 		/// LANDING (RIGHT SENSOR) ///
-		if(frontSense[0] == true && frontSense[1] < char.y+rotY+char.yv && (backSense[0] == true?(frontSense[1] <= backSense[1]):true) && (Math.abs(char.angle%(Math.PI*2)) < Math.PI/2&&char.yv > 0)){
+		if(frontSense[0] == true && frontSense[1] < char.y+rotY+char.yv && (backSense[0] == true?(frontSense[1] <= backSense[1]):true) && (Math.abs(char.angle%(Math.PI*2)) < Math.PI/2&&char.yv >= 0)){
 			console.log("foot2");
 			if(Math.abs(frontSense[2]) < 80){
 				if(frontSense[2] > 45){
@@ -988,12 +988,12 @@ function physics(){
 				char.Gv = 0.001*char.Gv/Math.abs(char.Gv);
 			}
 		}
-		if(backTopSense[0] == true&&char.y+rotY<backTopSense[1]+30&&char.yv<0){
+		if(backTopSense[0] == true&&char.y+rotY<backTopSense[1]+30&&char.yv<=0){
 			console.log("head1");
 			char.yv = -char.yv/2;
 			char.y = backTopSense[1]+30-rotY;
 		}
-		else if(frontTopSense[0] == true&&char.y+rotY<frontTopSense[1]+30&&char.yv < 0){
+		else if(frontTopSense[0] == true&&char.y+rotY<frontTopSense[1]+30&&char.yv <= 0){
 			console.log("head2");
 			char.yv = -char.yv/2;
 			char.y = frontTopSense[1]+30-rotY;

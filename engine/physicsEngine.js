@@ -100,7 +100,8 @@ function senseVLineB(x,y,h,c,l){
         }
     }
     debug.addRect(x,y-h,1,h,"#009900");
-    debug.addRect(x,highest[1],1,highest[1]-y,"#00FF00");
+    if(highest[0])
+        debug.addRect(x,highest[1],1,y-highest[1],"#00FF00");
     return highest; // returns an array: [<if tile was found>, <height of ground>, <angle of ground>]
 }
 
