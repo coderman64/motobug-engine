@@ -1269,8 +1269,9 @@ function loop(){ // the main game loop
 	frameStartTime = performance.now();
 
 	if(continue1&&(keysDown[67]?slowmo1%4==0:true)){//allow to freeze for developer purposes if things get too out of hand.
+		
 		//gamepad controls
-
+		gamepads = navigator.getGamepads();
 		for(var i = 0; i < gamepads.length; i++){
 			if(gamepads[i] != undefined){// The only reason why I need this line is because of Chrome. I hate you too, Chrome.
 				if(gamepads[i].buttons[0].pressed){
