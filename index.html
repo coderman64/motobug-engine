@@ -1,14 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Motobug Engine - BETA!</title>
+	<title>Sonic EXP</title>
 	<meta charset="UTF-8"/>
 	<style>
 	#myCanvas{
         -ms-interpolation-mode: nearest-neighbor;
         image-rendering: pixelated;
     }
+
+	@keyframes spinloop{
+		0% {transform: translate(-50%,-50%) rotateY(0deg)}
+		100% {transform: translate(-50%,-50%) rotateY(360deg)}
+	}
 	</style>
+	<!--simple page-load counter for basic analytics-->
+	<script src="https://exp-analytics-288816.ue.r.appspot.com/EXP-gameplay"></script>
 </head>
 <body>
 	<canvas id="myCanvas"></canvas>
@@ -20,6 +27,7 @@
 	<script src="engine/backgrounds.js"></script>
 	<script src="engine/level.js"></script>
 	<script src="engine/titleCard.js"></script>
+	<script src="engine/titleScreen.js"></script>
 	<script src="engine/index.js"></script>
 </body>
 </html>

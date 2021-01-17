@@ -1,2 +1,0 @@
-py ./scanImage.py
-pause

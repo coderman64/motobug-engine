@@ -45,9 +45,13 @@ level = [
 // GHZ Act 2 = 66
 ];//current level = 48
 
-backgroundMusic.src = "res/music/Dig3.ogg";
-backgroundMusic.loop = true;
-backgroundMusic.play();
+// backgroundMusic.src = "res/music/Dig3.ogg";
+// backgroundMusic.loop = true;
+// backgroundMusic.play();
+
+backgroundMusic.innerHTML = "";
+backgroundMusic.appendChild(addSource("res/music/Dig3.ogg"));
+backgroundMusic.load();
 
 chunks = [];
 thisScript = document.createElement("script");

@@ -1,8 +1,19 @@
-# Motorbug - A 360&deg; platforming engine for the modern web
+# Motobug Engine - A 360&deg; platforming engine for the modern web
 
 This is a 360&deg; ("sonic-style") platformer engine completely written in JavaScript and HTML5 allowing you to develop this style of platforming games for the Open Web.
 
 Example at [https://coderman64.github.io/motobug-engine/](https://coderman64.github.io/motobug-engine/)
+
+## recent updates:
+
+Jan 16, 2021
+- Merged updates made to the engine for the SAGE 2020 game Sonic EXP back in to the main Motobug branch. This includes many new and exciting features such as:
+    - A title screen, with animated logos that play beforehand (this is simply a .mp4 video file)
+    - Save games
+    - A save-select screen
+    - New items, including a level-finished signpost, and special stage ring
+    - polish with some new sprites, sounds, and animations
+    - _and much more!_
 
 ## features
 
@@ -17,47 +28,29 @@ Example at [https://coderman64.github.io/motobug-engine/](https://coderman64.git
     * slow down the game a bit by holding c
     * tap m to enable motion blur (experimental)
 
-## Why "Motorbug"?
+## Why "Motobug"?
 
-If you can't tell, this engine was highly insipred by the classic Sonic the Hedgehog games. In these games, there was an easy enemy called a "motobug." I thought this fit the engine pretty well, as it allowed you to "motor" along, and (at least for now) it has a lot of "bugs." XD
-
-Yes, adding the "r" is intentional. Yes, I know that it isn't that way in the original games. No, I will not change it. 
+If you can't tell, this engine was highly insipred by the classic Sonic the Hedgehog games. In these games, there was an easy enemy called a "motobug." I thought this fit the engine pretty well, as it allowed you to "motor" along, and (at least at the time) had a lot of "bugs."
 
 ## How is this different from other "sonic-style" engines?
 
-a number of different engines exist that do quite similar things to Motorbug. The most notable of these (off the top of my head) is the Sonic Worlds engine. This is a quite fully-featured and well-tested engine, and is much better than Motorbug in most cases. However, to fully utilize this engine, you need to install Multimedia Fusion 2 (MMF2), which is commercial software.
+A number of different engines exist that do quite similar things to Motobug. The most notable of these (off the top of my head) is the Sonic Worlds engine. This is a quite fully-featured and well-tested engine, and is much better than Motobug in most cases. However, to fully utilize this engine, you need to install Multimedia Fusion 2 (MMF2), which is commercial software.
 
-Motorbug, while quite a bit more buggy than Sonic Worlds, depends only on the open HTML5 & JavaScript standards, which means it can be played in any modern browser (including mobile, as far as I know).
+Motobug, while occasionally more buggy than Sonic Worlds, depends only on the open HTML5 & JavaScript standards, which means it can be played in any modern browser (including on mobile devices, and on the Xbox One/Series).
 
-There are also some other implementations of sonic physics written in JS (like [this](http://oursonic.org))
+There are also some other implementations of sonic physics written in JS (like [this](http://oursonic.org)), but they seem to be incomplete or massively buggy. Frameworks also exist that are layered on top of general-purpose game engines that can export to HTML5.
+
+Another thing that differentiates Motobug is that it has a (beta) level designer called [Motobug Studio](https://github.com/coderman64/motobug-engine-designer). While it _is_ still in beta, it should be stable enough to start making levels with, if you so desire. 
 
 ## how does it work?
 
-This engine is based loosely on the original engine for the Genesis sonic games. That being said, it does have its own quirks and differences.
+This engine is based loosely on the original engine for the Genesis sonic games. That being said, it does have its own quirks and differences. I may compile a list of these later on, but for the most part, just know that it isn't one-to-one quite yet.
 
-## Where can I get started!
+## Where can I get started?
 
-Woah! Hold your horses, Tex! This engine is a work-in-progress at best, and a buggy mess at worst. You can start poking around the code if you want, but it is entirely possible for the entire code base to change in the blink of an eye at this point. Worse, much of this code was written when I was but a wee little Coderman64, so it may be confusing, inefficient, and (of course) buggy.
+As previously mentioned, there is a level designer called [Motobug Studio](https://github.com/coderman64/motobug-engine-designer) which should make it easy to desgin and test stages for Motobug. I hope to compile a guide for getting started with this later on, but for now, you should be able to figure out most things just by poking about the interface. Hopefully.
 
-That being said, feel free to download the engine and try messing with it yourself. The level data is stored in the levels folder, using seperate *.js files. In order for it to be included in the game, you have to add your level file's name (minus the ".js") into `engine/level.js`. I will probably detail the entire process later in the "wiki" tab.
-
-If you want to add tiles, add the images (preferrably in `res/Level`, but it doesn't matter), and then add a relative path in `toScan.txt`. This scanner is for generating collision data. Match the following format:
-
-```
-[scancode]>[mask path (if needed)||] [path]
-
-[scancode] one of the following:
-s = scan the full image, in every direction.
-#nesw = scan from the specified cardinal direction
-m = use a mask image. this requires a mask path. Write it first, and seperate it from the image path with "||"
-n = no scan (for non-collidable tiles)
-
-lines that start with % are the pathnames where the data will be stored. These files are loaded in as part of the level *.js files.
-```
-
-Then, make sure you have python and pillow installed, and run `runScanner.bat`.
-
-I am also working on a level editor (written in python), but it isn't ready for release yet.
+If you are possibly interested in development in any fashion 
 
 ## Media and Resources
 

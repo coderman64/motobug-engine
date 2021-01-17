@@ -1,1 +1,0 @@
-This folder contains the version hosted online at https://coderman64.github.io/motobug-engine/

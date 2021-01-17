@@ -40,11 +40,11 @@ level = [
     [-1,-1,-1,-1,    -1,     -1,     -1,-1,-1,    -1,-1,   -1,      -1,     -1,     -1,     -1,     -1,-1,-1,-1,    -1,      -1,     -1,     -1,-1,-1,-1,-1,     -1,     -1,     14,     14,-1,     -1,    -1,-1,-1,-1,-1,     7,     7, 7, 7,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
     [-1,-1,-1,-1,    -1,     -1,     -1,-1,-1,    -1,-1,   -1,      -1,     -1,     -1,     -1,     -1,-1,-1,-1,    -1,      -1,     -1,     -1,-1,-1,-1,-1,     -1,     -1,     14,     14,-1,     -1,    -1,-1,-1,-1,-1,     7,     7, 7, 7,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
     //   1                                           10                                                             20                                                           30                                         40                                50                            60
-// GHZ Act 2 = 66
-];//current level = 48
+];
 
-backgroundMusic.src = "res/music/RapidBeach.wav";
-backgroundMusic.play();
+backgroundMusic.innerHTML = "";
+backgroundMusic.appendChild(addSource("res/music/RapidBeach.wav"));
+backgroundMusic.load();
 
 cBack = 0;
 
@@ -53,6 +53,14 @@ thisScript = document.createElement("script");
 thisScript.src = "levels/preprocessedImages.js";
 document.body.appendChild(thisScript);
 delete thisScript;
+
+function arrayRings(thisLevel,x,y,w,h,sx,sy){
+    for(var x1 = 0; x1 < w; x1++){
+        for(var y1 = 0; y1 < h; y1++){
+            thisLevel[0][thisLevel[0].length] = new ring(x+x1*sx,y+y1*sy,16,16,"res/items/ring.png");
+        }
+    }
+}
 
 //arrayRings(level,12*128,7.75*128,4,1,32,32);
 //loopRings(level,15*128-8,6*128-8,100,Math.PI/7,Math.PI,8);
