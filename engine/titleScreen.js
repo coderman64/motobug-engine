@@ -1,6 +1,6 @@
 var titleScreenImg = [
-    newImage("res/Title/title_Background.png"),
-    newImage("res/Title/title_Foreground.png")
+    newImage("res/Title/Title_Background.png"),
+    newImage("res/Title/Title_Foreground.png")
 ]
 
 var SKIP_TITLE=false;
