@@ -85,21 +85,12 @@ var pBGMusicTime = 0;
 var pPerfNow = 0;
 
 function titleScreen(){
-    if(SKIP_TITLE){
+    if(configuration.skipMenus){
         titleActive = false;
         backgroundMusic.volume = 1;
         logoVid.currentTime = 100;
         backgroundMusic.muted = false;
     }
-
-    // skips menu
-    // logosActive = false;
-    // inMenu = true;
-    // // titleActive = false;
-    // backgroundMusic.volume = 1;
-    // logoVid.currentTime = 100;
-    // logoVid.remove();
-    // backgroundMusic.muted = false;
 
     if(logosActive){
         c.fillStyle = "#000000";
@@ -111,6 +102,9 @@ function titleScreen(){
                 logosActive = false;
                 logoVid.remove();
             });
+            if(logoVid.networkState == 3){
+                logosActive = false;
+            }
         }
         if(keysDown[13]){
             if(!skipDown){

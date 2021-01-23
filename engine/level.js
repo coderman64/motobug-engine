@@ -28,7 +28,7 @@ function loadLevel(levelName){
 }
 
 var levelsList = ['CG-lev1'];
-var currentLevel = -1;
+var currentLevel = configuration.startLevel-1;
 
 function loadNextLevel(){
     currentLevel++;
