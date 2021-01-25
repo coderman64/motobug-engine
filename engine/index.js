@@ -706,7 +706,8 @@ var pDevLevelChange = false;
 document.body.appendChild(backgroundMusic);
 
 function resetLevel() {
-	char.GRV = 0.21875;
+	if(char.GRV == 0)
+		char.GRV = 0.21875;
 	char.x = char.startX;
 	char.y = char.startY;
 	cam.x = -char.x;
@@ -1200,7 +1201,8 @@ function physics() {
 	}
 	if (char.hurt && char.rings > 0 && char.invincible == 0) { // throw rings if you have some
 		char.hurt = false;
-		char.GRV = 0.21875;
+		if(char.levitate == true)
+			char.GRV = 0.21875;
 		var angle = Math.PI / Math.min(char.rings, 32);	// calculate the angle between rings
 		for (var i = 0; i < Math.min(char.rings, 32); i++) { // instantiate thrown rings
 			level[0][level[0].length] = new hitRing(char.x + Math.cos(angle * i) * 16, char.y - 20 - Math.sin(angle * i) * 16, 16, 16, "res/items/ring.png", Math.cos(angle * i) * 4, -Math.sin(angle * i) * 4);
@@ -1641,7 +1643,7 @@ function loop() { // the main game loop
 		if (char.levTimer && char.levTimer > 0 && char.GRV == 0) {
 			char.levTimer -= 1 * fpsFactor;
 		}
-		else {
+		else if(char.levitate == true){
 			char.GRV = 0.21875;
 		}
 		if (char.state != -1) {
