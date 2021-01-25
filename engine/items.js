@@ -1233,3 +1233,78 @@ var levelSign = function(x,y,w,h,nextLevel){
 levelSign.image = globalImgCache.getImg("res/items/sign.png");
 levelSign.sound = new Audio("res/sfx/SpinSign.wav");
 levelSign.endJingle = new Audio("res/music/EndJingle.ogg");
+
+var waterLine = function(x,y,w,h){
+    this.x = x;
+    this.y = y;
+    this.waterLevel = y;
+    // saves the original physics values for future reference.
+    this.origPhys = {
+        ACC: char.ACC, // acceleration
+        DEC: char.DEC,         // deceleration
+        FRC: char.FRC, // friction
+        TOP: char.TOP,                 // top speed (pixels/frame)
+        JMP: char.JMP,         // jump speed
+        GRV: char.GRV, // gravity
+    }
+    this.submerged = false;
+
+    this.phys = function(){
+        this.x = -cam.tx;
+        this.y = Math.max(-cam.ty,this.waterLevel);
+        if(char.y > this.waterLevel){
+            if(!this.submerged){
+                this.submerged = true;
+                if(char.state == -1){
+                    char.yv *= 0.25;
+                    char.xv *= 0.5;
+                    char.ACC = this.origPhys.ACC/2;
+                    char.TOP = this.origPhys.TOP/2;
+                    char.GRV = this.origPhys.GRV/2;
+                    char.JMP = this.origPhys.JMP/2;
+                }
+                else
+                {
+                    char.Gv = lerp(char.Gv*0.5,char.Gv*0.25,Math.abs(Math.sin(char.angle)));
+                }
+            }
+            if(char.rolling){
+                char.DEC = this.origPhys.DEC;
+                char.FRC = 0.01171875;
+            }
+            else
+            {
+                char.DEC = this.origPhys.DEC/2;
+                char.FRC = this.origPhys.FRC/2;
+            }
+            if(char.levitate == true&&char.GRV != 0){
+                char.JMP = this.origPhys.JMP/2;
+            }
+        }
+        else
+        {
+            if(this.submerged){
+                this.submerged = false;
+                char.ACC = this.origPhys.ACC;
+                char.TOP = this.origPhys.TOP;
+                char.GRV = this.origPhys.GRV;
+                char.JMP = this.origPhys.JMP;
+                char.FRC = this.origPhys.FRC;
+                char.DEC = this.origPhys.DEC;
+                if(char.state == -1){
+                    char.yv *= 2;
+                }
+                else
+                {
+                    char.Gv = lerp(char.Gv,char.Gv*2,Math.abs(Math.sin(char.angle)));
+                }
+            }
+        }
+        c.fillStyle = "#33339999";
+        c.fillRect(this.x+cam.tx,this.y+cam.ty,vScreenW,vScreenH);
+    }
+
+    this.draw = function(c,camx,camy){
+        debug.addRect(this.x,this.y,32,32,"#0000FF");    
+    }
+}
