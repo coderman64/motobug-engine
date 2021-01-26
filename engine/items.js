@@ -1255,13 +1255,13 @@ var waterLine = function(x,y,w,h){
         if(char.y > this.waterLevel){
             if(!this.submerged){
                 this.submerged = true;
+                char.ACC = this.origPhys.ACC/2;
+                char.TOP = this.origPhys.TOP/2;
+                char.GRV = this.origPhys.GRV/2;
+                char.JMP = this.origPhys.JMP/2;
                 if(char.state == -1){
                     char.yv *= 0.25;
                     char.xv *= 0.5;
-                    char.ACC = this.origPhys.ACC/2;
-                    char.TOP = this.origPhys.TOP/2;
-                    char.GRV = this.origPhys.GRV/2;
-                    char.JMP = this.origPhys.JMP/2;
                 }
                 else
                 {
