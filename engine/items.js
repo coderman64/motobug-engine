@@ -705,7 +705,7 @@ var WarpRing = function(x,y,w,h,disap,full,specLvl){
     this.c = this.canvi.getContext("2d");
     this.frame = 0;
     this.disable = false;
-    this.targetable = false;
+    this.targetable = true;
     this.hrid = "Warp Ring";
     this.warpTimer = 0;
     this.hit = function(char){
@@ -1255,10 +1255,10 @@ var waterLine = function(x,y,w,h){
         if(char.y > this.waterLevel){
             if(!this.submerged){
                 this.submerged = true;
-                char.ACC = this.origPhys.ACC/2;
-                char.TOP = this.origPhys.TOP/2;
+                char.ACC = this.origPhys.ACC/1.5;
+                char.TOP = this.origPhys.TOP/1.5;
                 char.GRV = this.origPhys.GRV/2;
-                char.JMP = this.origPhys.JMP/2;
+                char.JMP = this.origPhys.JMP/1.5;
                 if(char.state == -1){
                     char.yv *= 0.25;
                     char.xv *= 0.5;
@@ -1278,7 +1278,7 @@ var waterLine = function(x,y,w,h){
                 char.FRC = this.origPhys.FRC/2;
             }
             if(char.levitate == true&&char.GRV != 0){
-                char.JMP = this.origPhys.JMP/2;
+                char.JMP = this.origPhys.JMP/1.5;
             }
         }
         else
