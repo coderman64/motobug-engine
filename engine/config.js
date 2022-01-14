@@ -6,6 +6,8 @@ var configuration = {
 	skipMenus: false,		// set to true to skip the menus and go straight
 							// into the gameplay
 	startLevel: 0,			// the index of the first level to play
+	
+							//Default keybinds
 	lKey: 37,				//Left keymap
 	rKey: 39,				//Right keymap
 	upKey: 38,				//Up keymap
