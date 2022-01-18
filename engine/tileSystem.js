@@ -1,3 +1,7 @@
+// tileSystem.js 
+
+// contains code for rendering and storing the tiles in the level.
+
 
 var chunk = function(img,tiles,ltiles,rtiles,btiles){
     this.img = img;

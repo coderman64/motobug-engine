@@ -1,3 +1,17 @@
+// background.js (part of the Motobug engine)
+// contains code for managing the backgrounds used throughout the game, as 
+// well as code for a few default backgrounds. 
+
+// backFunc contains the following backgrounds by default
+// background 0 - a simple ocean background that looks bad(tm), but has water scrolling effects.
+// background 1 - an ice cave.
+// background 2 - a funky, interstellar background that can be used for special stages
+
+// user-created backgrounds should be defined in user-background.js 
+// they should be appended to the end of backFunc in this file.
+
+// a list of functions that define drawing routines for all backgrounds to be used in the game
+var backFunc = [];
 
 // stores the index of the current background
 var cBack = 0;
@@ -167,7 +181,7 @@ function psychBack(c){
 }
 
 // backFunc stores references to all functions used to draw a background.
-var backFunc = [back1,back2,psychBack];
+backFunc = [back1,back2,psychBack];
 
 // set drawBack as an easy reference to the current background function
 function drawBack(c){

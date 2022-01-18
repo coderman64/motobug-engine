@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////
 //
-//	THIS FILE IS PART OF THE MOTOBUG ENGINE BY (c) CODERMAN64
+//	THIS FILE IS THE MAIN FILE OF THE MOTOBUG ENGINE BY CODERMAN64
 //	LICENSED UNDER THE TERMS OF THE MIT LICENSE
 //
 ///////////////////////////////////////////////////////////
