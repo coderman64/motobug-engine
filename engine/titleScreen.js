@@ -1,15 +1,33 @@
+// titleScreen.js is a part of the Motobug Engine by Coderman64
+// it can be redistributed under the MIT license.
+
+// this file contains all the code for the titlescreen, menus, and anything else that
+// you see before the actual gameplay starts. 
+
+// It is mostly some rather hacky code that I put together to get ready for SAGE, so 
+// please excuse the mess.
+
+// TODO:
+// - clean up code
+// - remove magic numbers
+// - make the code much more re-usable and customizable 
+//      without serious javascript editing.
+
+
+// the two images for the title itself. 
+// A forground image, and a background image. 
+// These float slightly independently, so plan your logos accordingly
 var titleScreenImg = [
     newImage("res/Title/Title_Background.png"),
     newImage("res/Title/Title_Foreground.png")
 ]
 
+// set to true to immediately start the game with the first level
 var SKIP_TITLE=false;
 
+// local state variables (I don't remember what they are for...)
 var titleTimer = -70;
 var inMenu = false;
-// var patternCanvi = document.createElement("canvas");
-// var pattC = patternCanvi.getContext("2d");
-// var patternDrawn = false;
 var continueActive = false;
 var startActive = false;
 var menuMusicStarted = false;
@@ -20,11 +38,12 @@ var logosActive = true;
 var logosStarted = false;
 var skipDown = false;
 
-var logoVid = document.createElement("video");
-var mp4src = document.createElement("source");
+// enable video element
+var logoVid = document.createElement("video"); // the video element for the intro video
+var mp4src = document.createElement("source"); // the MP4-format source for the intro video (for compatibility)
 mp4src.src = "res/Title/logos.mp4";
 mp4src.type = "video/mp4";
-var webmsrc = document.createElement("source");
+var webmsrc = document.createElement("source"); // the WEBM-format source for the intro video (for compatibility)
 webmsrc.src = "res/Title/logos_2.webm";
 webmsrc.type = "video/webm";
 logoVid.appendChild(mp4src);
@@ -34,12 +53,14 @@ logoVid.style.zIndex = "0";
 logoVid.muted = false;
 document.body.appendChild(logoVid);
 
+// savefile-related state variables 
 var currentSave = 0;
 var saveAnim = 0;
 var pSaveSelect = false;
 var charSelectMode = false;
 var selectChar = 0;
 
+// a local state variable that stores all the savedata for display.
 var saves = [{
     level: 0,
     char: 0
@@ -53,33 +74,39 @@ var saves = [{
     char: 0
 }];
 
+// the preview for when the save file is new.
 var emptyImg = newImage("res/previews/Empty.png");
+
+// stores other previews
 var previews = [];
 
+// the names for all the levels. Hopefully this is changed by Motobug Studio, but we'll see.
 var levelNames = [
     "CRYSTAL GEYSER",
     "CHAOS CAUSEWAY",
     "SPECIAL STAGE"
 ]
 
+// I probably want to get rid of these savefile canvases at some point
 var saveCanvis = [
     document.createElement("canvas"),
     document.createElement("canvas"),
     document.createElement("canvas"),
 ]
 
+// initialize save canvases. 
 var saveCtx = [];
 for(var i = 0; i < saveCanvis.length; i++){
     saveCtx[i] = saveCanvis[i].getContext("2d");
 }
 
-window.addEventListener("touchdown",function(e){
-
-});
+// NOTE: why are these here? Is it overriding something?
+window.addEventListener("touchdown",function(e){});
 window.addEventListener("touchup",function(){})
 
 var pTouch = {x:0,y:0,active:false};
 
+// additional state variables
 var deleteSaveMode = false;
 var pBGMusicTime = 0;
 var pPerfNow = 0;
@@ -92,7 +119,11 @@ function titleScreen(){
         backgroundMusic.muted = false;
     }
 
-    if(logosActive){
+    if(logosActive){ // --- INTRO VIDEO --- 
+        /// this section runs during the intro video, which is usually a bunch of logos 
+        // proclaiming who made the game and stuff. 
+        // the main canvas should be behind this video, so nothing much needs to go on here, 
+        // except for the "skip" button, which skips to certain times in the video to skip logos.
         c.fillStyle = "#000000";
         c.fillRect(0,0,vScreenW,vScreenH);
         if(!logosStarted){
@@ -121,18 +152,21 @@ function titleScreen(){
         {
             skipDown = false;
         }
-        //console.log(logoVid.currentTime);
-        //c.drawImage(logoVid,0,0);
     }
-    else if(!inMenu){
+    else if(!inMenu){ // --- TITLE SCREEN ---
+        // this is the game's title screen. Most games should just be able to get away with replacing the two 
+        // layers for the title graphic, the background, and the music. 
+
+        // this section uses many magic numbers, and should be commonly referred to as "bad code"
+
         if(titleTimer == -70){
-            // backgroundMusic.src = "res/music/TitleV2.mp3";
-            // backgroundMusic.play(); 
-            // backgroundMusic.muted = false;
+            // play the title menu music (usually a theme of some variety)
             backgroundMusic.innerHTML = "";
             backgroundMusic.appendChild(addSource("res/music/TitleV2.ogg"));
             backgroundMusic.appendChild(addSource("res/music\\TitleV2.mp3"));
             backgroundMusic.load();
+
+            // the starting time, recorded to sync the title with the music. 
             startTime = backgroundMusic.currentTime*3/50+70;
             titleTimer = 0;
             logoVid.remove();
@@ -205,15 +239,27 @@ function titleScreen(){
             startActive = true;
         }
     }
-    else
+    else // --- SAVE FILE MENU --- 
     {
+        // here is the code for the save file menu. There are three save file slots, and a delete 
+        // option.
+
+        // this is overcomplicated by the use of seperate canvases to render each save slot onto. 
+        // I want to eventually get rid of this arrangement, and simply this code. 
+
+        // also, the background is hardcoded below, instead of using the background.js subsystem.
+        
         if(!menuMusicStarted){
+
+            // play the menu music, called "Choice Chooser"
             backgroundMusic.innerHTML = "";
             backgroundMusic.appendChild(addSource("res/music/ChoiceChooser.ogg"));
             backgroundMusic.appendChild(addSource("res/music\\ChoiceChooser.mp3"));
             backgroundMusic.load();
             backgroundMusic.play(); 
             menuMusicStarted = true;
+
+            // load all the save files from localstorage into memory (the saves object, specifically)
             for(var i = 0; i < 3; i++){
                 if(window.localStorage.getItem(i.toString()+"_level")){
                     saves[i].level = Number(window.localStorage.getItem(i.toString()+"_level"));
@@ -335,11 +381,6 @@ function titleScreen(){
         c.fillText("Delete",1+Math.floor(vScreenW/2+(saveCanvis[0].width+30)*(-1-saveAnim)),vScreenH*1.5/8+1);
         c.fillStyle = "white";
         c.fillText("Delete",Math.floor(vScreenW/2+(saveCanvis[0].width+30)*(-1-saveAnim)),vScreenH*1.5/8);
-
-        //c.drawImage(saveCanvis[i],Math.floor(vScreenW/3+(saveCanvis[i].width+30)
-        //*(i-saveAnim)),vScreenH/8,saveCanvis[i].width,saveCanvis[i].height);
-
-        // c.fillRect(Math.floor(vScreenW/4),vScreenH*7/8,Math.floor(vScreenW/2),vScreenH/8)
         
         if(titleFadeout>0){
             titleFadeout--;

@@ -1,3 +1,8 @@
+// titleCard.js
+
+// this file contains the code for the title card displayed before every level. It should be synced using the introAnim variable.
+// this default version comes with a ridiculous amount of magic numbers, so beware!
+
 function titleCard(c){
     if(introAnim < 200){
 		introAnim += 0.5*fpsFactor;

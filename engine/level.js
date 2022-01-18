@@ -1,3 +1,9 @@
+// level.js
+
+// contains code for keeping track of level data, loading in levels over the internet 
+// (so the entire game doesn't exist in your browser at once), and stashing levels,
+// which allows them to be momentarily interrupted then returned to (like with special stages)
+
 var level = [[]];
 
 var loading = false;

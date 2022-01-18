@@ -1,3 +1,7 @@
+// the motobug engine item scripts
+
+// see the motobug engine wiki for more information
+
 
 function newImage(name){
     var tmpImg = document.createElement("img");
