@@ -22,8 +22,16 @@ var titleScreenImg = [
     newImage("res/Title/Title_Foreground.png")
 ]
 
-// set to true to immediately start the game with the first level
+// set to true to immediately start the game in the first level
 var SKIP_TITLE=false;
+
+// the times in the intro video (in seconds) that the user can skip to 
+// with the start button. This is usually between logos, and at the end 
+// (if you want the user to be able to skip the last logo)
+var introSkipSections = [
+    4.9,
+    8.5
+];
 
 // local state variables (I don't remember what they are for...)
 var titleTimer = -70;
@@ -149,13 +157,13 @@ function introVideo(){
             logosActive = false;
         }
     }
-    if(keysDown[13]){
+    if(keysDown[configuration.startKey]){
         if(!skipDown){
-            if(logoVid.currentTime < 4.9){
-                logoVid.currentTime = 4.9;
-            }
-            else if(logoVid.currentTime < 8.5){
-                logoVid.currentTime = 8.5
+            for(var i = 0; i < introSkipSections.length; i++){
+                if(logoVid.currentTime < introSkipSections[i]){
+                    logoVid.currentTime = introSkipSections[i];
+                    break;
+                }
             }
         }
         skipDown = true;
@@ -237,7 +245,7 @@ function pressStartScreen() {
         c.fillStyle = "rgba(0,0,0,"+((titleTimer-2800)/100).toString()+")";
         c.fillRect(0,0,vScreenW,vScreenH);
     }
-    if(keysDown[13]){
+    if(keysDown[configuration.startKey]){
         if(startActive&&titleFadeout<=0&&titleTimer > 120){
             titleFadeout = 1;
             // inMenu = true;
@@ -460,7 +468,7 @@ function saveFileMenu(){
         selectChar = 0;
     }
 
-    if(keysDown[13]||
+    if(keysDown[configuration.startKey]||
         (pTouch.active&&!avgTouch.active&&
             Math.abs(pTouch.x-startTouch.x) < 50&&
             Math.abs(pTouch.y-startTouch.y) < 50)){
