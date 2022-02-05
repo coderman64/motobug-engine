@@ -46,6 +46,10 @@ var logosActive = true;
 var logosStarted = false;
 var skipDown = false;  //used for skipping intro cutscene
 
+//Constants
+const MENU_SCROLL_SPEED = 0.1; //higher values let you scroll through menu items faster
+const MENU_SPACING = 30; //how far apart menu items are spaced on the
+
 // enable video element
 var logoVid = document.createElement("video"); // the video element for the intro video
 var mp4src = document.createElement("source"); // the MP4-format source for the intro video (for compatibility)
@@ -63,7 +67,7 @@ document.body.appendChild(logoVid);
 
 // savefile-related state variables 
 var currentSave = 0; //appears to be used for all items in save menu including the delete
-var saveAnim = 0;  //havent figured out what this does but it updates every frame for some reason
+var saveAnim = 0;  //x offset used for scrolling between menu items.  Updates every frame even when not scrolling.
 var pSaveSelect = false;
 var charSelectMode = false;
 var selectChar = 0;
@@ -328,7 +332,7 @@ function saveFileMenu(){
         vScreenH/2+Math.sin(5*Math.cos(titleTimer/37)+3)*(75+50*Math.cos(titleTimer/30)),
         21,0,360);
     c.fill();
-    saveAnim += (currentSave-saveAnim)*0.1;
+    saveAnim += (currentSave-saveAnim)*MENU_SCROLL_SPEED; //appears to be the code that scrolls through save files
     //console.log("saveAnim = " + saveAnim.toString());
 
     for(var i = 0; i < saveCtx.length; i++){
@@ -379,32 +383,32 @@ function saveFileMenu(){
         
         if(saves[i]&&saves[i].char != null){
             drawCharFrame(possChars[saves[i].char].spriteSheet,possChars[saves[i].char].anim.stand[0],
-                Math.floor(vScreenW/2+(saveCanvis[i].width+30)*(i-saveAnim)),Math.floor(vScreenH*3/4));
+                Math.floor(vScreenW/2+(saveCanvis[i].width+MENU_SPACING)*(i-saveAnim)),Math.floor(vScreenH*3/4));
         }
         if(charSelectMode&&currentSave==i){
             drawCharFrame(possChars[selectChar].spriteSheet,possChars[selectChar].anim.stand[0],
-                Math.floor(vScreenW/2+(saveCanvis[i].width+30)*(i-saveAnim)),Math.floor(vScreenH*3/4));
+                Math.floor(vScreenW/2+(saveCanvis[i].width+MENU_SPACING)*(i-saveAnim)),Math.floor(vScreenH*3/4));
             }
         
-        c.drawImage(saveCanvis[i],Math.floor(vScreenW/3+(saveCanvis[i].width+30)
+        c.drawImage(saveCanvis[i],Math.floor(vScreenW/3+(saveCanvis[i].width+MENU_SPACING)
             *(i-saveAnim)),vScreenH/8,saveCanvis[i].width,saveCanvis[i].height);
     }
 
     c.lineWidth = 2;
     c.strokeStyle = "#000000AA";
-    c.strokeRect(Math.floor(vScreenW/3+(saveCanvis[0].width+30)*(-1-saveAnim))+Math.round(Math.max(0,4-3*(-1-saveAnim)**2)),
+    c.strokeRect(Math.floor(vScreenW/3+(saveCanvis[0].width+MENU_SPACING)*(-1-saveAnim))+Math.round(Math.max(0,4-3*(-1-saveAnim)**2)),
         vScreenH/8+Math.round(Math.max(0,4-3*(-1-saveAnim)**2)),
         Math.floor(vScreenW/3),Math.floor(vScreenH/3))
     c.strokeStyle = deleteSaveMode?"#FFEE55":"#FF2200";
-    c.strokeRect(Math.floor(vScreenW/3+(saveCanvis[0].width+30)*(-1-saveAnim)),vScreenH/8,Math.floor(vScreenW/3),Math.floor(vScreenH/3));
+    c.strokeRect(Math.floor(vScreenW/3+(saveCanvis[0].width+MENU_SPACING)*(-1-saveAnim)),vScreenH/8,Math.floor(vScreenW/3),Math.floor(vScreenH/3));
 
     c.textAlign = "center"; //Delete button goes here
     c.textBaseline = "middle";
     c.font = "20px sans-serif";
     c.fillStyle = "black";
-    c.fillText("Delete",1+Math.floor(vScreenW/2+(saveCanvis[0].width+30)*(-1-saveAnim)),vScreenH*1.5/8+1);
+    c.fillText("Delete",1+Math.floor(vScreenW/2+(saveCanvis[0].width+MENU_SPACING)*(-1-saveAnim)),vScreenH*1.5/8+1);
     c.fillStyle = "white";
-    c.fillText("Delete",Math.floor(vScreenW/2+(saveCanvis[0].width+30)*(-1-saveAnim)),vScreenH*1.5/8);
+    c.fillText("Delete",Math.floor(vScreenW/2+(saveCanvis[0].width+MENU_SPACING)*(-1-saveAnim)),vScreenH*1.5/8);
 
     if(titleFadeout>0){
         titleFadeout--;
