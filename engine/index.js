@@ -21,13 +21,14 @@ var mBlurCanvi = document.createElement("canvas");
 var mBlurCtx = mBlurCanvi.getContext("2d");
 
 
-// attempt to load custom contols from local storage, if not found load default controls:
-var leftKey = configuration.lKey;
-var rightKey = configuration.rKey;
-var upKey = configuration.upKey;
-var downKey = configuration.dKey;
-var jumpKey = configuration.jKey;
-var startKey = configuration.startKey;
+// attempt to load custom contols from local storage, if not found load default controls from config:
+var leftKey;
+var rightKey;
+var upKey;
+var downKey;
+var jumpKey;
+var startKey;
+loadControls(); 
 
 // initialize the motion blur toggle configuration
 var motionBlurToggle = configuration.mBlurDefault;
@@ -1797,6 +1798,55 @@ function drawMBlur() {
 		c.globalAlpha = "1";
 		c.globalCompositeOperation = "source-over";
 	}
+}
+
+function loadControls(){
+	if(window.localStorage.getItem('lKey')){ //load left key
+		leftKey = window.localStorage.getItem('lKey');
+		console.log("Loading Left key from save data " + leftKey.toString());
+	}
+	else {
+		leftKey = configuration.lKey;
+		console.log("Loading left key from default settings " +leftKey.toString());
+	}
+
+	if(window.localStorage.getItem('rKey')){ //load right key
+		rightKey = window.localStorage.getItem('rKey');
+		console.log("Loading right key from save data " + rightKey.toString());
+	}
+	else {
+		rightKey = configuration.rKey;
+		console.log("Loading right key from default settings " + rightKey.toString());
+	}
+
+	if(window.localStorage.getItem('upKey')){ //load up key
+		upKey = window.localStorage.getItem('upKey');
+		console.log("Loading up key from save data " + upKey.toString());
+	}
+	else {
+		upKey = configuration.upKey;
+		console.log("Loading up key from default settings " +upKey.toString());
+	}
+
+	if(window.localStorage.getItem('dKey')){ //load down key
+		downKey = window.localStorage.getItem('dKey');
+		console.log("Loading down key from save data " + downKey.toString());
+	}
+	else {
+		downKey = configuration.dKey;
+		console.log("Loading down key from default settings " + downKey.toString());
+	}
+
+	if(window.localStorage.getItem('jKey')){ //load jump key
+		jumpKey = window.localStorage.getItem('jKey');
+		console.log("Loading jump key from save data " + jumpKey.toString());
+	}
+	else {
+		jumpKey = configuration.jKey;
+		console.log("Loading jump key from default settings " + jumpKey.toString());
+	}
+
+	startKey = configuration.startKey; //currently hardcoded
 }
 
 function controlPressed(e) {
