@@ -520,19 +520,20 @@ function controls() {
 	}
 	if (char.rolling == false) {
 		if (!(keysDown[86] && devMode) && keysDown[rightKey] && (char.golock <= 0 || char.Gv > 0) && char.state != -1) {
-			char.goingLeft = true;
-			if (char.Gv < 0) {
+			//check if right directional input is pressed
+			char.goingLeft = true;  
+			if (char.Gv < 0) {  //check if sonic is moving to the left
 				char.Gv += char.DEC;
 				char.currentAnim = anim.skid;
 			}
 			else if (char.Gv < char.TOP) {
-				char.Gv += char.ACC;
+				char.Gv += char.ACC; //accelerate until you reach top speed
 				if (char.Gv > char.TOP) {
-					char.Gv = char.TOP;
+					char.Gv = char.TOP; //could decelerate you if were moving above top speed ffrom inertia.  working as intended?
 				}
 			}
 
-			if (char.Gv > 0) {
+			if (char.Gv > 0) { //separate if statement that only controls animation
 				if (Math.abs(char.Gv) >= char.TOP) {
 					char.currentAnim = anim.run;
 					char.animSpeed = Math.abs(char.Gv) / 40 + 0.1;
@@ -544,8 +545,9 @@ function controls() {
 			}
 		}
 		else if (!(keysDown[86] && devMode) && keysDown[leftKey] && (char.golock <= 0 || char.Gv < 0) && char.state != -1) {
-			char.goingLeft = false;
-			if (char.Gv > 0) {
+			//check if left directional input is pressed
+			char.goingLeft = false; //set goingleft as false when left is pressed
+			if (char.Gv > 0) {  //check if sonic is moving to the right
 				char.Gv -= char.DEC;
 				char.currentAnim = anim.skid;
 			}
@@ -1243,7 +1245,7 @@ function physics() {
 		}
 	}
 
-	// reset himing attack on ground
+	// reset homing attack on ground
 	if (char.state != -1) {
 		char.pHoming = true;
 	}
@@ -1801,7 +1803,7 @@ function drawMBlur() {
 
 function controlPressed(e) {
 	if (char.homing == true && char.state == -1) {
-		if (e.keyCode == 65 && char.pHoming == false && keysDown[jumpKey] == false) {
+		if (e.keyCode == 65 && char.pHoming == false && keysDown[jumpKey] == false) { //possible bug, checks keycode against efault jump keyt instead of whatever is saved in config
 			char.pHoming = true;
 			char.currentAnim = anim.jump;
 			char.jumpState = 1;
@@ -1845,14 +1847,14 @@ function controlPressed(e) {
 		}
 	}
 	if (char.dropDash == true && char.state == -1 && char.jumpState == 1) {
-		if (e.keyCode == 65 && keysDown[jumpKey] == false) {
+		if (e.keyCode == 65 && keysDown[jumpKey] == false) { //again, compares keycode to integer 65 instead of controls saved in config.
 			char.pDropDash = true;
 		}
 	}
 }
 
 function controlReleased(e) {
-	if (keysDown[jumpKey] == true && e.keyCode == 65) {
+	if (keysDown[jumpKey] == true && e.keyCode == 65) { //again, compares keycode to integer 65 instead of controls saved in config.
 		if (char.levitate == true && char.state == -1 && char.jumpState == 1) {
 			char.GRV = 0.21875;
 		}
