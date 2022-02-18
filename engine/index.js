@@ -528,8 +528,8 @@ function controls() {
 			}
 			else if (char.Gv < char.TOP) {
 				char.Gv += char.ACC; //accelerate until you reach top speed
-				if (char.Gv > char.TOP) {
-					char.Gv = char.TOP; //could decelerate you if were moving above top speed ffrom inertia.  working as intended?
+				if (char.Gv > char.TOP) { //only called if you are accelerating under Sonic's own power
+					char.Gv = char.TOP; 
 				}
 			}
 
