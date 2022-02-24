@@ -570,15 +570,15 @@ function controls() {
 			}
 		}
 		else if (char.state != -1) {
-			//friction
+			//friction with no left or right input
 			if (char.Gv < -char.FRC) {
 				char.Gv += char.FRC;
 			}
 			else if (char.Gv > char.FRC) {
 				char.Gv -= char.FRC;
 			}
-			if (char.Gv >= -char.FRC && char.Gv <= char.FRC && char.Gv != 0) {
-				char.Gv = 0.0001 * (char.goingLeft ? 1 : -1);
+			if (char.Gv >= -char.FRC && char.Gv <= char.FRC && char.Gv != 0) { //is ground speed in either direction less than friction per frame?
+				char.Gv = 0.0001 * (char.goingLeft ? 1 : -1); //preserve direction character is facing by setting ground velocity to extremelely small number, instead of 0
 			}
 
 			if (Math.abs(char.Gv) <= 0.01) {
