@@ -908,7 +908,7 @@ function physics() {
 			}
 			//if you're going too slow, fall
 			if (Math.abs(char.Gv) < 0.25 && char.state == 1) {
-				if (char.angle <= -Math.PI / 2) {
+				if (char.angle <= -Math.PI / 2) {  //must be at least perpendicular to ground to fall instead of sliding
 					char.state = -1;
 					char.jumpState = 0;
 				}
@@ -959,7 +959,7 @@ function physics() {
 
 			}
 			if (Math.abs(char.Gv) < 0.25 && char.state == 3) {
-				if (char.angle >= Math.PI / 2) {
+				if (char.angle >= Math.PI / 2) { //must be at least perpendicular to ground to fall instead of sliding
 					char.state = -1;
 					char.jumpState = 0;
 				}
