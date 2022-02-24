@@ -912,8 +912,8 @@ function physics() {
 					char.state = -1;
 					char.jumpState = 0;
 				}
-				else if (char.angle > -Math.PI / 2) {
-					char.Gv = -5;
+				else if (char.angle > -Math.PI / 2) { //interestingly, this makes your character faster than if you slide/run down a vertical surface
+					char.Gv = -5; //Ground velocity of 5 is fast enough to complete loops and run up most walls
 					char.golock = 30;
 				}
 			}
@@ -963,8 +963,8 @@ function physics() {
 					char.state = -1;
 					char.jumpState = 0;
 				}
-				else if (char.angle < Math.PI / 2) {
-					char.Gv = 5;
+				else if (char.angle < Math.PI / 2) { //interestingly, this makes your character faster than if you slide/run down a vertical surface
+					char.Gv = 5; //Ground velocity of 5 is fast enough to complete loops and run up most walls
 					char.golock = 30;
 				}
 			}
