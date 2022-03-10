@@ -1268,8 +1268,8 @@ var lastAnim = {anim:null,frame:null};
 function drawChar() {
 	//draw Character
 	//console.log("sonic is drawn");
-	a = (char.currentAnim[Math.floor(char.frameIndex)][2] / 2) * ((char.Gv < 0) ? 1 : -1);
-	b = -(char.currentAnim[Math.floor(char.frameIndex)][3]);//+15;
+	a = (char.currentAnim[Math.floor(char.frameIndex)][2] / 2) * ((char.goingLeft) ? 1 : -1); //x offset
+	b = -(char.currentAnim[Math.floor(char.frameIndex)][3]);// y offset
 	temp = 0;
 	if (configuration.classicAngles) {
 		temp = char.angle
@@ -1277,6 +1277,7 @@ function drawChar() {
 	}
 	//c.translate((cam.x == 0?char.x:((cam.x==(-level[1].length*128+vScreenW))?char.x-level[1].length*128+vScreenW:vScreenW/2+(cam.tx-cam.x)))+a*Math.cos(char.angle)-b*Math.sin(char.angle),  (cam.y >= -15?char.y-15:((cam.y==(-(level.length-1)*128+vScreenH))?(char.y-(level.length-1)*128+vScreenH):vScreenH/2+(cam.ty-cam.y)))+b*Math.cos(char.angle)+a*Math.sin(char.angle));
 	c.translate((char.x + cam.x + a * Math.cos(char.angle) - b * Math.sin(char.angle)), (char.y + cam.y + b * Math.cos(char.angle) + a * Math.sin(char.angle)));
+	
 	c.rotate(char.angle);
 	if (configuration.classicAngles) {
 		char.angle = temp;
@@ -1286,8 +1287,8 @@ function drawChar() {
 		mBlurCtx.translate(char.x + cam.x + a * Math.cos(char.angle) - b * Math.sin(char.angle), char.y + cam.y + b * Math.cos(char.angle) + a * Math.sin(char.angle))
 		mBlurCtx.rotate(char.angle);
 	}
-	if (char.Gv < 0) {
-		c.scale(-1, 1);
+	if (char.goingLeft) { //controls which way sonic is facing
+		c.scale(-1, 1); 
 		if (motionBlurToggle)
 			mBlurCtx.scale(-1, 1);
 	}
