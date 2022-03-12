@@ -130,7 +130,7 @@ var runLevelTimer = true; // true when the level timer is running
 
 // utility function to quickly generate an array of animation frame cutouts
 // each element is a list with [x,y,width,height] in sprite sheet coordinates
-function grabAnim(startx, starty, W, H, n) {
+function grabAnim(startx, starty, W, H, n) { //assumes all frames of a given animation are arranged in a row on the sprite sheet
 	var images = [];
 	for (var i = 0; i < n; i++) {
 		images[i] = [startx + W * i, starty, W, H];
@@ -164,7 +164,7 @@ var char = {
 	yv: 0,//y-velocity
 	grounded: false,
 	frameIndex: 0,
-	currentAnim: anim.stand,
+	currentAnim: anim.stand, //reminder: this variable stores coordinates for each frame, not the actual images!
 	animSpeed: 1,
 	rolling: false,
 	angle: 0,
@@ -1268,19 +1268,19 @@ var lastAnim = {anim:null,frame:null};
 function drawChar() {
 	//draw Character
 	//console.log("sonic is drawn");
-	a = (char.currentAnim[Math.floor(char.frameIndex)][2] / 2) * ((char.goingLeft) ? 1 : -1); //x offset
-	b = -(char.currentAnim[Math.floor(char.frameIndex)][3]);// y offset
+	a = (char.currentAnim[Math.floor(char.frameIndex)][2] / 2) * ((char.goingLeft) ? 1 : -1); //x offset for sprite rotation, uses half the frame width stored in currentanim
+	b = -(char.currentAnim[Math.floor(char.frameIndex)][3]);// y offset for sprite rotation, uses the height of the frame data stored in currentanin
 	temp = 0;
 	if (configuration.classicAngles) {
-		temp = char.angle
-		char.angle = Math.round(char.angle / (Math.PI / 4)) * (Math.PI / 4); // <-- "classic Angles"
+		temp = char.angle //store actual character angle before drawing sprite
+		char.angle = Math.round(char.angle / (Math.PI / 4)) * (Math.PI / 4); // <-- character angle temporarily set to closest multiple of 45 degrees
 	}
 	//c.translate((cam.x == 0?char.x:((cam.x==(-level[1].length*128+vScreenW))?char.x-level[1].length*128+vScreenW:vScreenW/2+(cam.tx-cam.x)))+a*Math.cos(char.angle)-b*Math.sin(char.angle),  (cam.y >= -15?char.y-15:((cam.y==(-(level.length-1)*128+vScreenH))?(char.y-(level.length-1)*128+vScreenH):vScreenH/2+(cam.ty-cam.y)))+b*Math.cos(char.angle)+a*Math.sin(char.angle));
 	c.translate((char.x + cam.x + a * Math.cos(char.angle) - b * Math.sin(char.angle)), (char.y + cam.y + b * Math.cos(char.angle) + a * Math.sin(char.angle)));
 	
 	c.rotate(char.angle);
 	if (configuration.classicAngles) {
-		char.angle = temp;
+		char.angle = temp; //recall actual character angle from storage befroe any further physical calculations are performed
 	}
 	if (motionBlurToggle) {
 		//mBlurCtx.translate((vScreenW/2+(cam.tx-cam.x))+a*Math.cos(char.angle)-b*Math.sin(char.angle),vScreenH/2+(cam.ty-cam.y)+b*Math.cos(char.angle)+a*Math.sin(char.angle));
@@ -1708,6 +1708,7 @@ function loop() { // the main game loop
 			debugText += "Vert. Velocity: " + (Math.round(char.yv * 100) / 100).toString() + "<br>";
 			debugText += "Spindash Charge: " + (Math.round(char.spindashCharge * 100) / 100).toString() + "<br>";
 			debugText += "FPS factor: " + fpsFactor + "<br>";
+			debugText += "Frame Index " + (char.frameIndex).toString() + "<br>";
 			debugText += "Layer: " + (char.layer).toString() + "<br>";
 			debugText += "Player Pos.: (" + Math.floor(char.x) + "," + Math.floor(char.y) + ")<br>";
 			debugText += "frame count:" + Math.round(frameCount).toString() + "<br>";
