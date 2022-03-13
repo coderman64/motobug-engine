@@ -133,9 +133,9 @@ var runLevelTimer = true; // true when the level timer is running
 function grabAnim(startx, starty, W, H, n) {
 	var images = [];
 	for (var i = 0; i < n; i++) {
-		images[i] = [startx + W * i, starty, W, H];
+		images[i] = [startx + W * i, starty, W, H]; //requires that all frames intedended for the animation be placed on the same row in the sprite sheet
 	}
-	return images;
+	return images; //returns a 2 dimensional array of coordinates for use with the sprite sheet, does not store as separate images!
 }
 
 // the default animation data. Swapped for different characters (should default to Sonic)
@@ -164,7 +164,7 @@ var char = {
 	yv: 0,//y-velocity
 	grounded: false,
 	frameIndex: 0,
-	currentAnim: anim.stand,
+	currentAnim: anim.stand,  //reminder: this is an array of coordinates, not actual images.  These coordinates will be used for other calculations later
 	animSpeed: 1,
 	rolling: false,
 	angle: 0,
@@ -520,19 +520,20 @@ function controls() {
 	}
 	if (char.rolling == false) {
 		if (!(keysDown[86] && devMode) && keysDown[rightKey] && (char.golock <= 0 || char.Gv > 0) && char.state != -1) {
-			char.goingLeft = true;
-			if (char.Gv < 0) {
+			//check if right directional input is pressed
+			char.goingLeft = true;  
+			if (char.Gv < 0) {  //check if sonic is moving to the left
 				char.Gv += char.DEC;
 				char.currentAnim = anim.skid;
 			}
 			else if (char.Gv < char.TOP) {
-				char.Gv += char.ACC;
-				if (char.Gv > char.TOP) {
-					char.Gv = char.TOP;
+				char.Gv += char.ACC; //accelerate until you reach top speed
+				if (char.Gv > char.TOP) { //only called if you are accelerating under Sonic's own power
+					char.Gv = char.TOP; 
 				}
 			}
 
-			if (char.Gv > 0) {
+			if (char.Gv > 0) { //separate if statement that only controls animation
 				if (Math.abs(char.Gv) >= char.TOP) {
 					char.currentAnim = anim.run;
 					char.animSpeed = Math.abs(char.Gv) / 40 + 0.1;
@@ -544,8 +545,9 @@ function controls() {
 			}
 		}
 		else if (!(keysDown[86] && devMode) && keysDown[leftKey] && (char.golock <= 0 || char.Gv < 0) && char.state != -1) {
-			char.goingLeft = false;
-			if (char.Gv > 0) {
+			//check if left directional input is pressed
+			char.goingLeft = false; //set goingleft as false when left is pressed
+			if (char.Gv > 0) {  //check if sonic is moving to the right
 				char.Gv -= char.DEC;
 				char.currentAnim = anim.skid;
 			}
@@ -568,15 +570,15 @@ function controls() {
 			}
 		}
 		else if (char.state != -1) {
-			//friction
+			//friction with no left or right input
 			if (char.Gv < -char.FRC) {
 				char.Gv += char.FRC;
 			}
 			else if (char.Gv > char.FRC) {
 				char.Gv -= char.FRC;
 			}
-			if (char.Gv >= -char.FRC && char.Gv <= char.FRC && char.Gv != 0) {
-				char.Gv = 0.0001 * (char.goingLeft ? 1 : -1);
+			if (char.Gv >= -char.FRC && char.Gv <= char.FRC && char.Gv != 0) { //is ground speed in either direction less than friction per frame?
+				char.Gv = 0.0001 * (char.goingLeft ? 1 : -1); //preserve direction character is facing by setting ground velocity to extremelely small number, instead of 0
 			}
 
 			if (Math.abs(char.Gv) <= 0.01) {
@@ -906,12 +908,12 @@ function physics() {
 			}
 			//if you're going too slow, fall
 			if (Math.abs(char.Gv) < 0.25 && char.state == 1) {
-				if (char.angle <= -Math.PI / 2) {
+				if (char.angle <= -Math.PI / 2) {  //must be at least perpendicular to ground to fall instead of sliding
 					char.state = -1;
 					char.jumpState = 0;
 				}
-				else if (char.angle > -Math.PI / 2) {
-					char.Gv = -5;
+				else if (char.angle > -Math.PI / 2) { //interestingly, this makes your character faster than if you slide/run down a vertical surface
+					char.Gv = -5; //Ground velocity of 5 is fast enough to complete loops and run up most walls
 					char.golock = 30;
 				}
 			}
@@ -957,12 +959,12 @@ function physics() {
 
 			}
 			if (Math.abs(char.Gv) < 0.25 && char.state == 3) {
-				if (char.angle >= Math.PI / 2) {
+				if (char.angle >= Math.PI / 2) { //must be at least perpendicular to ground to fall instead of sliding
 					char.state = -1;
 					char.jumpState = 0;
 				}
-				else if (char.angle < Math.PI / 2) {
-					char.Gv = 5;
+				else if (char.angle < Math.PI / 2) { //interestingly, this makes your character faster than if you slide/run down a vertical surface
+					char.Gv = 5; //Ground velocity of 5 is fast enough to complete loops and run up most walls
 					char.golock = 30;
 				}
 			}
@@ -1243,7 +1245,7 @@ function physics() {
 		}
 	}
 
-	// reset himing attack on ground
+	// reset homing attack on ground
 	if (char.state != -1) {
 		char.pHoming = true;
 	}
@@ -1266,28 +1268,28 @@ var lastAnim = {anim:null,frame:null};
 function drawChar() {
 	//draw Character
 	//console.log("sonic is drawn");
-	a = (char.currentAnim[Math.floor(char.frameIndex)][2] / 2) * ((char.Gv < 0) ? 1 : -1);
-	b = -(char.currentAnim[Math.floor(char.frameIndex)][3]);//+15;
-	temp = 0;
+	a = (char.currentAnim[Math.floor(char.frameIndex)][2] / 2) * ((char.Gv < 0) ? 1 : -1); //width offset.  made to equal half of sprite width
+	b = -(char.currentAnim[Math.floor(char.frameIndex)][3]);//height offset.  made to equal sprite heght
+	temp = 0; // used to store copy of sonic's physical angle
 	if (configuration.classicAngles) {
-		temp = char.angle
-		char.angle = Math.round(char.angle / (Math.PI / 4)) * (Math.PI / 4); // <-- "classic Angles"
+		temp = char.angle //store sonic's actual angle here while using the main variable for graphical calculations
+		char.angle = Math.round(char.angle / (Math.PI / 4)) * (Math.PI / 4); // <-- clostest multiple of 45 degrees
 	}
 	//c.translate((cam.x == 0?char.x:((cam.x==(-level[1].length*128+vScreenW))?char.x-level[1].length*128+vScreenW:vScreenW/2+(cam.tx-cam.x)))+a*Math.cos(char.angle)-b*Math.sin(char.angle),  (cam.y >= -15?char.y-15:((cam.y==(-(level.length-1)*128+vScreenH))?(char.y-(level.length-1)*128+vScreenH):vScreenH/2+(cam.ty-cam.y)))+b*Math.cos(char.angle)+a*Math.sin(char.angle));
-	c.translate((char.x + cam.x + a * Math.cos(char.angle) - b * Math.sin(char.angle)), (char.y + cam.y + b * Math.cos(char.angle) + a * Math.sin(char.angle)));
+	c.translate((char.x + cam.x + a * Math.cos(char.angle) - b * Math.sin(char.angle)), (char.y + cam.y + b * Math.cos(char.angle) + a * Math.sin(char.angle))); //offset variables used here to account for sprite rotation
 	c.rotate(char.angle);
 	if (configuration.classicAngles) {
-		char.angle = temp;
+		char.angle = temp; //restore sonic's angle to actual value before any physical calculations can be performed
 	}
 	if (motionBlurToggle) {
 		//mBlurCtx.translate((vScreenW/2+(cam.tx-cam.x))+a*Math.cos(char.angle)-b*Math.sin(char.angle),vScreenH/2+(cam.ty-cam.y)+b*Math.cos(char.angle)+a*Math.sin(char.angle));
 		mBlurCtx.translate(char.x + cam.x + a * Math.cos(char.angle) - b * Math.sin(char.angle), char.y + cam.y + b * Math.cos(char.angle) + a * Math.sin(char.angle))
 		mBlurCtx.rotate(char.angle);
 	}
-	if (char.Gv < 0) {
+	if (char.Gv < 0) { //mirror sonic if his ground velocity is toward the left
 		c.scale(-1, 1);
 		if (motionBlurToggle)
-			mBlurCtx.scale(-1, 1);
+			mBlurCtx.scale(-1, 1); //also mirror any motion blur
 	}
 
 	if(lastAnim.anim != char.currentAnim || lastAnim.frame != char.frameIndex){
@@ -1801,7 +1803,7 @@ function drawMBlur() {
 
 function controlPressed(e) {
 	if (char.homing == true && char.state == -1) {
-		if (e.keyCode == 65 && char.pHoming == false && keysDown[jumpKey] == false) {
+		if (e.keyCode == 65 && char.pHoming == false && keysDown[jumpKey] == false) { //possible bug, checks keycode against efault jump keyt instead of whatever is saved in config
 			char.pHoming = true;
 			char.currentAnim = anim.jump;
 			char.jumpState = 1;
@@ -1845,14 +1847,14 @@ function controlPressed(e) {
 		}
 	}
 	if (char.dropDash == true && char.state == -1 && char.jumpState == 1) {
-		if (e.keyCode == 65 && keysDown[jumpKey] == false) {
+		if (e.keyCode == 65 && keysDown[jumpKey] == false) { //again, compares keycode to integer 65 instead of controls saved in config.
 			char.pDropDash = true;
 		}
 	}
 }
 
 function controlReleased(e) {
-	if (keysDown[jumpKey] == true && e.keyCode == 65) {
+	if (keysDown[jumpKey] == true && e.keyCode == 65) { //again, compares keycode to integer 65 instead of controls saved in config.
 		if (char.levitate == true && char.state == -1 && char.jumpState == 1) {
 			char.GRV = 0.21875;
 		}
