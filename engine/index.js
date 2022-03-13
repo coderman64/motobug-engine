@@ -1703,13 +1703,11 @@ function loop() { // the main game loop
 			debug.drawAll(cam.tx, cam.ty, c);
 			c.fillStyle = "black";
 			debugText = "<strong>Angle (deg):" + Math.round(char.angle * 180 / Math.PI).toString() + "<br>";
-			debugText += "goingleft: " + (char.goingLeft).toString() + "<br>";
 			debugText += "Wall state: " + (char.state).toString() + "<br>";
 			debugText += "Hor. Velocity: " + (Math.round(char.Gv * 100) / 100).toString() + "<br>";
 			debugText += "Vert. Velocity: " + (Math.round(char.yv * 100) / 100).toString() + "<br>";
 			debugText += "Spindash Charge: " + (Math.round(char.spindashCharge * 100) / 100).toString() + "<br>";
 			debugText += "FPS factor: " + fpsFactor + "<br>";
-			debugText += "Frame Index " + (char.frameIndex).toString() + "<br>";
 			debugText += "Layer: " + (char.layer).toString() + "<br>";
 			debugText += "Player Pos.: (" + Math.floor(char.x) + "," + Math.floor(char.y) + ")<br>";
 			debugText += "frame count:" + Math.round(frameCount).toString() + "<br>";
