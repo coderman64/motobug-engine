@@ -133,9 +133,9 @@ var runLevelTimer = true; // true when the level timer is running
 function grabAnim(startx, starty, W, H, n) {
 	var images = [];
 	for (var i = 0; i < n; i++) {
-		images[i] = [startx + W * i, starty, W, H];
+		images[i] = [startx + W * i, starty, W, H]; //requires that all frames intedended for the animation be placed on the same row in the sprite sheet
 	}
-	return images;
+	return images; //returns a 2 dimensional array of coordinates for use with the sprite sheet, does not store as separate images!
 }
 
 // the default animation data. Swapped for different characters (should default to Sonic)
@@ -164,7 +164,7 @@ var char = {
 	yv: 0,//y-velocity
 	grounded: false,
 	frameIndex: 0,
-	currentAnim: anim.stand,
+	currentAnim: anim.stand,  //reminder: this is an array of coordinates, not actual images.  These coordinates will be used for other calculations later
 	animSpeed: 1,
 	rolling: false,
 	angle: 0,
@@ -1268,28 +1268,28 @@ var lastAnim = {anim:null,frame:null};
 function drawChar() {
 	//draw Character
 	//console.log("sonic is drawn");
-	a = (char.currentAnim[Math.floor(char.frameIndex)][2] / 2) * ((char.Gv < 0) ? 1 : -1);
-	b = -(char.currentAnim[Math.floor(char.frameIndex)][3]);//+15;
-	temp = 0;
+	a = (char.currentAnim[Math.floor(char.frameIndex)][2] / 2) * ((char.Gv < 0) ? 1 : -1); //width offset.  made to equal half of sprite width
+	b = -(char.currentAnim[Math.floor(char.frameIndex)][3]);//height offset.  made to equal sprite heght
+	temp = 0; // used to store copy of sonic's physical angle
 	if (configuration.classicAngles) {
-		temp = char.angle
-		char.angle = Math.round(char.angle / (Math.PI / 4)) * (Math.PI / 4); // <-- "classic Angles"
+		temp = char.angle //store sonic's actual angle here while using the main variable for graphical calculations
+		char.angle = Math.round(char.angle / (Math.PI / 4)) * (Math.PI / 4); // <-- clostest multiple of 45 degrees
 	}
 	//c.translate((cam.x == 0?char.x:((cam.x==(-level[1].length*128+vScreenW))?char.x-level[1].length*128+vScreenW:vScreenW/2+(cam.tx-cam.x)))+a*Math.cos(char.angle)-b*Math.sin(char.angle),  (cam.y >= -15?char.y-15:((cam.y==(-(level.length-1)*128+vScreenH))?(char.y-(level.length-1)*128+vScreenH):vScreenH/2+(cam.ty-cam.y)))+b*Math.cos(char.angle)+a*Math.sin(char.angle));
-	c.translate((char.x + cam.x + a * Math.cos(char.angle) - b * Math.sin(char.angle)), (char.y + cam.y + b * Math.cos(char.angle) + a * Math.sin(char.angle)));
+	c.translate((char.x + cam.x + a * Math.cos(char.angle) - b * Math.sin(char.angle)), (char.y + cam.y + b * Math.cos(char.angle) + a * Math.sin(char.angle))); //offset variables used here to account for sprite rotation
 	c.rotate(char.angle);
 	if (configuration.classicAngles) {
-		char.angle = temp;
+		char.angle = temp; //restore sonic's angle to actual value before any physical calculations can be performed
 	}
 	if (motionBlurToggle) {
 		//mBlurCtx.translate((vScreenW/2+(cam.tx-cam.x))+a*Math.cos(char.angle)-b*Math.sin(char.angle),vScreenH/2+(cam.ty-cam.y)+b*Math.cos(char.angle)+a*Math.sin(char.angle));
 		mBlurCtx.translate(char.x + cam.x + a * Math.cos(char.angle) - b * Math.sin(char.angle), char.y + cam.y + b * Math.cos(char.angle) + a * Math.sin(char.angle))
 		mBlurCtx.rotate(char.angle);
 	}
-	if (char.Gv < 0) {
+	if (char.Gv < 0) { //mirror sonic if his ground velocity is toward the left
 		c.scale(-1, 1);
 		if (motionBlurToggle)
-			mBlurCtx.scale(-1, 1);
+			mBlurCtx.scale(-1, 1); //also mirror any motion blur
 	}
 
 	if(lastAnim.anim != char.currentAnim || lastAnim.frame != char.frameIndex){
