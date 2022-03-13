@@ -133,9 +133,9 @@ var runLevelTimer = true; // true when the level timer is running
 function grabAnim(startx, starty, W, H, n) { //assumes all frames of a given animation are arranged in a row on the sprite sheet
 	var images = [];
 	for (var i = 0; i < n; i++) {
-		images[i] = [startx + W * i, starty, W, H];
+		images[i] = [startx + W * i, starty, W, H]; //requires that all frames intedended for the animation be placed on the same row in the sprite sheet
 	}
-	return images;
+	return images; //returns a 2 dimensional array of coordinates for use with the sprite sheet, does not store as separate images!
 }
 
 // the default animation data. Swapped for different characters (should default to Sonic)
@@ -164,7 +164,7 @@ var char = {
 	yv: 0,//y-velocity
 	grounded: false,
 	frameIndex: 0,
-	currentAnim: anim.stand, //reminder: this variable stores coordinates for each frame, not the actual images!
+	currentAnim: anim.stand,  //reminder: this is an array of coordinates, not actual images.  These coordinates will be used for other calculations later
 	animSpeed: 1,
 	rolling: false,
 	angle: 0,
@@ -546,7 +546,8 @@ function controls() {
 		}
 		else if (!(keysDown[86] && devMode) && keysDown[leftKey] && (char.golock <= 0 || char.Gv < 0) && char.state != -1) {
 			//check if left directional input is pressed
-			char.goingLeft = true; //set goingleft as false when left is pressed
+			char.goingLeft = true;
+
 			if (char.Gv > 0) {  //check if sonic is moving to the right
 				char.Gv -= char.DEC;
 				char.currentAnim = anim.skid;
@@ -1268,6 +1269,7 @@ var lastAnim = {anim:null,frame:null};
 function drawChar() {
 	//draw Character
 	//console.log("sonic is drawn");
+
 	widthOffset = (char.currentAnim[Math.floor(char.frameIndex)][2] / 2) * ((char.goingLeft) ? 1 : -1); //width offset. made to equal half of sprite width
 	heightOffset = -(char.currentAnim[Math.floor(char.frameIndex)][3]);// height offset. made to equal sprite heght
 	trueAngle = 0; //used to store copy of sonic's physical angle
@@ -1282,16 +1284,18 @@ function drawChar() {
 	c.rotate(char.angle);
 	if (configuration.classicAngles) {
 		char.angle = trueAngle; //restore sonic's angle to actual value before any physical calculations can be performed
+
 	}
 	if (motionBlurToggle) {
 		//mBlurCtx.translate((vScreenW/2+(cam.tx-cam.x))+a*Math.cos(char.angle)-b*Math.sin(char.angle),vScreenH/2+(cam.ty-cam.y)+b*Math.cos(char.angle)+a*Math.sin(char.angle));
 		mBlurCtx.translate(char.x + cam.x + widthOffset * Math.cos(char.angle) - heightOffset * Math.sin(char.angle), char.y + cam.y + heightOffset * Math.cos(char.angle) + widthOffset * Math.sin(char.angle))
 		mBlurCtx.rotate(char.angle);
 	}
+
 	if (char.goingLeft) { //controls which way sonic is facing
 		c.scale(-1, 1); 
 		if (motionBlurToggle)
-			mBlurCtx.scale(-1, 1);
+			mBlurCtx.scale(-1, 1); //also mirror any motion blur
 	}
 
 	if(lastAnim.anim != char.currentAnim || lastAnim.frame != char.frameIndex){
