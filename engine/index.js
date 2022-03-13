@@ -1252,7 +1252,7 @@ function physics() {
 }
 
 var pCharPos = { x: char.x, y: char.y }
-var a, b;
+var widthOffset, heightOffset;
 
 var mBlurClearCount = 0;
 
@@ -1263,28 +1263,29 @@ function drawCharFrame(image, frame, x, y) {
 	c.drawImage(sonicCanvas, Math.floor(x - frame[2] / 2), Math.floor(y - frame[3]));
 }
 
-var temp;
+var trueAngle;
 var lastAnim = {anim:null,frame:null};
 function drawChar() {
 	//draw Character
 	//console.log("sonic is drawn");
-	a = (char.currentAnim[Math.floor(char.frameIndex)][2] / 2) * ((char.goingLeft) ? 1 : -1); //x offset for sprite rotation, uses half the frame width stored in currentanim
-	b = -(char.currentAnim[Math.floor(char.frameIndex)][3]);// y offset for sprite rotation, uses the height of the frame data stored in currentanin
-	temp = 0;
+	widthOffset = (char.currentAnim[Math.floor(char.frameIndex)][2] / 2) * ((char.goingLeft) ? 1 : -1); //width offset. made to equal half of sprite width
+	heightOffset = -(char.currentAnim[Math.floor(char.frameIndex)][3]);// height offset. made to equal sprite heght
+	trueAngle = 0; //used to store copy of sonic's physical angle
 	if (configuration.classicAngles) {
-		temp = char.angle //store actual character angle before drawing sprite
+		trueAngle = char.angle //store sonic's actual angle here while using the main variable for graphical calculations
 		char.angle = Math.round(char.angle / (Math.PI / 4)) * (Math.PI / 4); // <-- character angle temporarily set to closest multiple of 45 degrees
 	}
-	//c.translate((cam.x == 0?char.x:((cam.x==(-level[1].length*128+vScreenW))?char.x-level[1].length*128+vScreenW:vScreenW/2+(cam.tx-cam.x)))+a*Math.cos(char.angle)-b*Math.sin(char.angle),  (cam.y >= -15?char.y-15:((cam.y==(-(level.length-1)*128+vScreenH))?(char.y-(level.length-1)*128+vScreenH):vScreenH/2+(cam.ty-cam.y)))+b*Math.cos(char.angle)+a*Math.sin(char.angle));
-	c.translate((char.x + cam.x + a * Math.cos(char.angle) - b * Math.sin(char.angle)), (char.y + cam.y + b * Math.cos(char.angle) + a * Math.sin(char.angle)));
+
+	c.translate((char.x + cam.x + widthOffset * Math.cos(char.angle) - heightOffset * Math.sin(char.angle)), (char.y + cam.y + heightOffset * Math.cos(char.angle) + widthOffset * Math.sin(char.angle)));
+	//offset variables used here to account for sprite rotation
 	
 	c.rotate(char.angle);
 	if (configuration.classicAngles) {
-		char.angle = temp; //recall actual character angle from storage befroe any further physical calculations are performed
+		char.angle = trueAngle; //restore sonic's angle to actual value before any physical calculations can be performed
 	}
 	if (motionBlurToggle) {
 		//mBlurCtx.translate((vScreenW/2+(cam.tx-cam.x))+a*Math.cos(char.angle)-b*Math.sin(char.angle),vScreenH/2+(cam.ty-cam.y)+b*Math.cos(char.angle)+a*Math.sin(char.angle));
-		mBlurCtx.translate(char.x + cam.x + a * Math.cos(char.angle) - b * Math.sin(char.angle), char.y + cam.y + b * Math.cos(char.angle) + a * Math.sin(char.angle))
+		mBlurCtx.translate(char.x + cam.x + widthOffset * Math.cos(char.angle) - heightOffset * Math.sin(char.angle), char.y + cam.y + heightOffset * Math.cos(char.angle) + widthOffset * Math.sin(char.angle))
 		mBlurCtx.rotate(char.angle);
 	}
 	if (char.goingLeft) { //controls which way sonic is facing
