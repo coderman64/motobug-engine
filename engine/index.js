@@ -1709,6 +1709,8 @@ function loop() { // the main game loop
 			debug.drawAll(cam.tx, cam.ty, c);
 			c.fillStyle = "black";
 			debugText = "<strong>Angle (deg):" + Math.round(char.angle * 180 / Math.PI).toString() + "<br>";
+			debugText += "X offset" + (widthOffset * Math.cos(char.angle) - heightOffset * Math.sin(char.angle)).toString() + "<br>";
+			debugText += "y offset" + (heightOffset * Math.cos(char.angle) + widthOffset * Math.sin(char.angle)).toString() + "<br>";
 			debugText += "Wall state: " + (char.state).toString() + "<br>";
 			debugText += "Hor. Velocity: " + (Math.round(char.Gv * 100) / 100).toString() + "<br>";
 			debugText += "Vert. Velocity: " + (Math.round(char.yv * 100) / 100).toString() + "<br>";
