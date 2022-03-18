@@ -1280,10 +1280,16 @@ function drawChar() {
 		char.angle = Math.round(char.angle / (Math.PI / 4)) * (Math.PI / 4); // <-- character angle temporarily set to closest multiple of 45 degrees
 	}
 
-	c.translate((char.x + cam.x + widthOffset * Math.cos(char.angle) - heightOffset * Math.sin(char.angle)), (char.y + cam.y + heightOffset * Math.cos(char.angle) + widthOffset * Math.sin(char.angle)));
-	//offset variables used here to account for sprite rotation
-	
-	c.rotate(char.angle);
+	if(char.currentAnim == anim.jump)
+	{   //rolling animations are not angled and need different equations to calculate x and y offset-where is the upper left corner in relation to the ground?
+		c.translate((char.x + cam.x + widthOffset - heightOffset * Math.sin(char.angle)/2), (char.y + cam.y + (heightOffset * Math.cos(char.angle)/2)) + heightOffset/2);
+	    c.rotate(0);
+	}
+	else 
+	{   //offset variables used here to account for sprite rotation-compensates for the fact that images pivot around the upper left corner
+		c.translate((char.x + cam.x + widthOffset * Math.cos(char.angle) - heightOffset * Math.sin(char.angle)), (char.y + cam.y + heightOffset * Math.cos(char.angle) + widthOffset * Math.sin(char.angle)));	
+		c.rotate(char.angle);
+	}
 	
 	char.angle = trueAngle; //restore sonic's angle to actual value before any physical calculations can be performed
 
@@ -1709,8 +1715,6 @@ function loop() { // the main game loop
 			debug.drawAll(cam.tx, cam.ty, c);
 			c.fillStyle = "black";
 			debugText = "<strong>Angle (deg):" + Math.round(char.angle * 180 / Math.PI).toString() + "<br>";
-			debugText += "X offset" + (widthOffset * Math.cos(char.angle) - heightOffset * Math.sin(char.angle)).toString() + "<br>";
-			debugText += "y offset" + (heightOffset * Math.cos(char.angle) + widthOffset * Math.sin(char.angle)).toString() + "<br>";
 			debugText += "Wall state: " + (char.state).toString() + "<br>";
 			debugText += "Hor. Velocity: " + (Math.round(char.Gv * 100) / 100).toString() + "<br>";
 			debugText += "Vert. Velocity: " + (Math.round(char.yv * 100) / 100).toString() + "<br>";
