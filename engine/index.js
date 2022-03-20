@@ -1072,11 +1072,11 @@ function physics() {
 				char.Gv = char.yv * Math.sin(backSense[2] * Math.PI / 180) + char.xv * Math.cos(backSense[2] * Math.PI / 180);
 				char.angle = backSense[2] * Math.PI / 180;
 				char.yv = 0;
-				if (char.dropCharge >= 20) {
+				if (char.dropCharge >= 20) { //activate drop dash
 					char.Gv = Math.min(char.Gv / 2 + 8 * (char.goingLeft ? -1 : 1), 12);
 					char.rolling = true;
 					char.dropCharge = 0;
-					//sfx.src = sfxObj.airDash;
+					spawn(level, new effect(char.x - 12, char.y - 32, 25, 25, "res/items/speedDash.png", 5));
 					sfxObj2.airDash.load();
 					sfxObj2.airDash.play();
 					sfxObj2.spindash.pause();
@@ -1103,11 +1103,11 @@ function physics() {
 				char.Gv = char.yv * Math.sin(frontSense[2] * Math.PI / 180) + char.xv * Math.cos(frontSense[2] * Math.PI / 180);
 				char.angle = frontSense[2] * Math.PI / 180;
 				char.yv = 0;
-				if (char.dropCharge >= 20) {
+				if (char.dropCharge >= 20) { //activate drop dash
 					char.Gv = Math.min(char.Gv / 2 + 8 * (char.goingLeft ? -1 : 1), 12);
 					char.rolling = true
 					char.dropCharge = 0;
-					//sfx.src = sfxObj.airDash;
+					spawn(level, new effect(char.x - 12, char.y - 32, 25, 25, "res/items/speedDash.png", 5));
 					sfxObj2.airDash.load();
 					sfxObj2.airDash.play();
 					sfxObj2.spindash.pause();
@@ -1716,6 +1716,7 @@ function loop() { // the main game loop
 			c.fillStyle = "black";
 			debugText = "<strong>Angle (deg):" + Math.round(char.angle * 180 / Math.PI).toString() + "<br>";
 			debugText += "Wall state: " + (char.state).toString() + "<br>";
+			debugText += "level objects" + (level[0].length).toString() + "<br>";
 			debugText += "Hor. Velocity: " + (Math.round(char.Gv * 100) / 100).toString() + "<br>";
 			debugText += "Vert. Velocity: " + (Math.round(char.yv * 100) / 100).toString() + "<br>";
 			debugText += "Spindash Charge: " + (Math.round(char.spindashCharge * 100) / 100).toString() + "<br>";
@@ -1847,7 +1848,7 @@ function controlPressed(e) {
 				}
 			}
 			level[0][level[0].length] = new effect(char.x - 12, char.y - 32, 25, 25, "res/items/speedDash.png", 5);
-			//sfx.src = sfxObj.airDash;
+			//creates particle effect for shadow's air dash
 			sfxObj2.airDash.load();
 			sfxObj2.airDash.play();
 		}

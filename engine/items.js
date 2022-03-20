@@ -460,7 +460,7 @@ var hitRing = function(x,y,w,h,src,vX,vY){
     }
 }
 
-var effect = function(x,y,w,h,src,length){
+var effect = function(x,y,w,h,src,length){ //visual effect sprite.  Deletes itself once animation is finished
     this.x = x;
     this.y = y;
     this.w = w;
@@ -525,6 +525,7 @@ var motobug = function(x,y,w,h,src,layer){
         if(!this.disable){
             if((char.rolling)||((char.state == -1&&char.jumpState == 1)&&(char.levitate!=true||char.GR != 0))){
                 this.disable = true;
+                level[0][level[0].length] = new effect(this.x - this.w, this.y + this.h, 25, 25, "res/items/speedDash.png", 5);
                 motobug.explodeFX.currentTime = 0;
                 motobug.explodeFX.play();
                 if(char.state == -1){
