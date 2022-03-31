@@ -5,10 +5,17 @@
 // which allows them to be momentarily interrupted then returned to (like with special stages)
 
 var level = [[]];
+/*A level is an array of arrays. level[0] stores objeccts like rings and level[1] and onward are rows of level chunks*/
 
 var loading = false;
 
 //[-1,-1,-1,-1,-1,-1,-1,-1,-1,    -1,-1,-1,-1,     -1,     -1,     -1,     -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+
+function spawn (thisLevel, thisItem)
+{
+    thisLevel[0][thisLevel[0].length] = thisItem;
+}
+
 
 function loopRings(thisLevel,cX,cY,r,a,oa,n){
     //center x, center y, radius, angle (between rings), offset angle,  total number (of rings)
