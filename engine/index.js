@@ -653,9 +653,9 @@ function controls() {
 	}
 	if (char.golock > 0) {
 		char.golock--;
-		if (Math.abs(char.Gv) < 0.1) {
-			char.golock = 0;
-		}
+		// if (Math.abs(char.Gv) < 0.1) {
+		// 	char.golock = 0;
+		// }
 	}
 
 	if (char.state == -1 && char.jumpState != 2) { // air movement
@@ -914,8 +914,9 @@ function physics() {
 					char.jumpState = 0;
 				}
 				else if (char.angle > -Math.PI / 2) { //interestingly, this makes your character faster than if you slide/run down a vertical surface
-					char.Gv = -5; //Ground velocity of 5 is fast enough to complete loops and run up most walls
+					char.Gv = 0; //Ground velocity of 5 is fast enough to complete loops and run up most walls
 					char.golock = 30;
+					char.state = -1;
 				}
 			}
 		}
@@ -965,8 +966,9 @@ function physics() {
 					char.jumpState = 0;
 				}
 				else if (char.angle < Math.PI / 2) { //interestingly, this makes your character faster than if you slide/run down a vertical surface
-					char.Gv = 5; //Ground velocity of 5 is fast enough to complete loops and run up most walls
+					char.Gv = 0; //Ground velocity of 5 is fast enough to complete loops and run up most walls
 					char.golock = 30;
+					char.state = -1;
 				}
 			}
 		}
@@ -1069,6 +1071,8 @@ function physics() {
 					char.rolling = false;
 				}
 				char.y = backSense[1] - rotY;
+
+				// change the ground velocity when you land on ground
 				char.Gv = char.yv * Math.sin(backSense[2] * Math.PI / 180) + char.xv * Math.cos(backSense[2] * Math.PI / 180);
 				char.angle = backSense[2] * Math.PI / 180;
 				char.yv = 0;
@@ -1179,12 +1183,14 @@ function physics() {
 
 	/// SLIDE DOWN SLOPE IF NOT FAST ENOUGH ///
 	if (Math.abs(char.angle + Math.PI / 4) < Math.PI / 8 && Math.abs(char.Gv) < 0.1 && char.state != -1) {
-		char.Gv = -2;
+		char.Gv = 0;
 		char.golock = 30;
+		char.state = -1;
 	}
 	if (Math.abs(char.angle - Math.PI / 4) < Math.PI / 8 && Math.abs(char.Gv) < 0.1 && char.state != -1) {
-		char.Gv = 2;
+		char.Gv = 0;
 		char.golock = 30;
+		char.state = -1;
 	}
 
 	// add the character collision rectangle to the debug screen.
@@ -1724,6 +1730,7 @@ function loop() { // the main game loop
 			debugText += "Layer: " + (char.layer).toString() + "<br>";
 			debugText += "Player Pos.: (" + Math.floor(char.x) + "," + Math.floor(char.y) + ")<br>";
 			debugText += "frame count:" + Math.round(frameCount).toString() + "<br>";
+			debugText += "Control Lock:"+char.golock.toString()+"<br>"
 			debugText += "Avg. FPS:" + Math.round(avgFPS).toString() + "<br>";
 			debugText += "FPS:" + Math.round(1000 / (newMillis > lastMillis ? newMillis - lastMillis : newMillis - (lastMillis - 1000))).toString() + "</strong><br>";
 			debugText += "Camera: (" + Math.floor(cam.x) + "," + Math.floor(cam.y) + ")<br>";
