@@ -20,6 +20,15 @@ canvi.style.zIndex = "2";
 var mBlurCanvi = document.createElement("canvas"); 
 var mBlurCtx = mBlurCanvi.getContext("2d");
 
+
+// attempt to load custom contols from local storage, if not found load default controls:
+var leftKey = configuration.lKey;
+var rightKey = configuration.rKey;
+var upKey = configuration.upKey;
+var downKey = configuration.dKey;
+var jumpKey = configuration.jKey;
+var startKey = configuration.startKey;
+
 // initialize the motion blur toggle configuration
 var motionBlurToggle = configuration.mBlurDefault;
 var pMotionBlurToggle = configuration.mBlurDefault;
@@ -124,9 +133,9 @@ var runLevelTimer = true; // true when the level timer is running
 function grabAnim(startx, starty, W, H, n) {
 	var images = [];
 	for (var i = 0; i < n; i++) {
-		images[i] = [startx + W * i, starty, W, H];
+		images[i] = [startx + W * i, starty, W, H]; //requires that all frames intedended for the animation be placed on the same row in the sprite sheet
 	}
-	return images;
+	return images; //returns a 2 dimensional array of coordinates for use with the sprite sheet, does not store as separate images!
 }
 
 // the default animation data. Swapped for different characters (should default to Sonic)
@@ -155,7 +164,7 @@ var char = {
 	yv: 0,//y-velocity
 	grounded: false,
 	frameIndex: 0,
-	currentAnim: anim.stand,
+	currentAnim: anim.stand,  //reminder: this is an array of coordinates, not actual images.  These coordinates will be used for other calculations later
 	animSpeed: 1,
 	rolling: false,
 	angle: 0,
@@ -447,25 +456,25 @@ var startGame = function () {
 function controls() {
 	//debugging camera. First so it can suppress movement keys
 	if (keysDown[86] && devMode) {
-		if (keysDown[37]) {
+		if (keysDown[leftKey]) {
 			debug.camX += 8;
 			if (keysDown[16]) {
 				debug.camX += 8;
 			}
 		}
-		if (keysDown[38]) {
+		if (keysDown[upKey]) {
 			debug.camY += 8;
 			if (keysDown[16]) {
 				debug.camY += 8;
 			}
 		}
-		if (keysDown[39]) {
+		if (keysDown[rightKey]) {
 			debug.camX -= 8;
 			if (keysDown[16]) {
 				debug.camX -= 8;
 			}
 		}
-		if (keysDown[40]) {
+		if (keysDown[downKey]) {
 			debug.camY -= 8;
 			if (keysDown[16]) {
 				debug.camY -= 8;
@@ -480,7 +489,7 @@ function controls() {
 		debug.camX = 0;
 		debug.camY = 0;
 	}
-	if (keysDown[65] && char.state != -1 && keysDown[40] != true && char.pJump != true) {//jumping
+	if (keysDown[jumpKey] && char.state != -1 && keysDown[downKey] != true && char.pJump != true) {//jumping
 		char.state = -1;
 		char.anim = anim.jump;
 		//console.log("angle: "+(char.angle*180/Math.PI).toString());
@@ -499,31 +508,32 @@ function controls() {
 		char.dropCharge = 0;
 		char.pJump = true;
 	}
-	if (!keysDown[65] && char.state != -1) {
+	if (!keysDown[jumpKey] && char.state != -1) {
 		char.pJump = false;
 	}
-	if (!keysDown[65] && char.state == -1) { // reset drop dash if you release the jump button
+	if (!keysDown[jumpKey] && char.state == -1) { // reset drop dash if you release the jump button
 		char.dropCharge = 0;
 		char.pDropDash = false;
 	}
-	if (char.state == -1 && keysDown[65] != true && char.jumpState == 1 && char.yv < -4) { // controllable jump height
+	if (char.state == -1 && keysDown[jumpKey] != true && char.jumpState == 1 && char.yv < -4) { // controllable jump height
 		char.yv = -4;
 	}
 	if (char.rolling == false) {
-		if (!(keysDown[86] && devMode) && keysDown[39] && (char.golock <= 0 || char.Gv > 0) && char.state != -1) {
-			char.goingLeft = true;
-			if (char.Gv < 0) {
+		if (!(keysDown[86] && devMode) && keysDown[rightKey] && (char.golock <= 0 || char.Gv > 0) && char.state != -1) {
+			//check if right directional input is pressed
+			char.goingLeft = true;  
+			if (char.Gv < 0) {  //check if sonic is moving to the left
 				char.Gv += char.DEC;
 				char.currentAnim = anim.skid;
 			}
 			else if (char.Gv < char.TOP) {
-				char.Gv += char.ACC;
-				if (char.Gv > char.TOP) {
-					char.Gv = char.TOP;
+				char.Gv += char.ACC; //accelerate until you reach top speed
+				if (char.Gv > char.TOP) { //only called if you are accelerating under Sonic's own power
+					char.Gv = char.TOP; 
 				}
 			}
 
-			if (char.Gv > 0) {
+			if (char.Gv > 0) { //separate if statement that only controls animation
 				if (Math.abs(char.Gv) >= char.TOP) {
 					char.currentAnim = anim.run;
 					char.animSpeed = Math.abs(char.Gv) / 40 + 0.1;
@@ -534,9 +544,10 @@ function controls() {
 				}
 			}
 		}
-		else if (!(keysDown[86] && devMode) && keysDown[37] && (char.golock <= 0 || char.Gv < 0) && char.state != -1) {
-			char.goingLeft = false;
-			if (char.Gv > 0) {
+		else if (!(keysDown[86] && devMode) && keysDown[leftKey] && (char.golock <= 0 || char.Gv < 0) && char.state != -1) {
+			//check if left directional input is pressed
+			char.goingLeft = false; //set goingleft as false when left is pressed
+			if (char.Gv > 0) {  //check if sonic is moving to the right
 				char.Gv -= char.DEC;
 				char.currentAnim = anim.skid;
 			}
@@ -559,15 +570,15 @@ function controls() {
 			}
 		}
 		else if (char.state != -1) {
-			//friction
+			//friction with no left or right input
 			if (char.Gv < -char.FRC) {
 				char.Gv += char.FRC;
 			}
 			else if (char.Gv > char.FRC) {
 				char.Gv -= char.FRC;
 			}
-			if (char.Gv >= -char.FRC && char.Gv <= char.FRC && char.Gv != 0) {
-				char.Gv = 0.0001 * (char.goingLeft ? 1 : -1);
+			if (char.Gv >= -char.FRC && char.Gv <= char.FRC && char.Gv != 0) { //is ground speed in either direction less than friction per frame?
+				char.Gv = 0.0001 * (char.goingLeft ? 1 : -1); //preserve direction character is facing by setting ground velocity to extremelely small number, instead of 0
 			}
 
 			if (Math.abs(char.Gv) <= 0.01) {
@@ -583,7 +594,7 @@ function controls() {
 					char.animSpeed = Math.abs(char.Gv) / 40 + 0.1;
 				}
 			}
-			if (!(keysDown[86] && devMode) && keysDown[40]) {
+			if (!(keysDown[86] && devMode) && keysDown[downKey]) {
 				if (Math.abs(char.Gv) > 0.001) {
 					char.rolling = true;
 					//sfx.src = sfxObj.spindash;
@@ -591,7 +602,7 @@ function controls() {
 					sfxObj2.spindash.play();
 				}
 				else {
-					if (keysDown[65]) {
+					if (keysDown[jumpKey]) {
 						char.currentAnim = anim.spindash;
 						char.animSpeed = 1;
 						char.rolling = true;
@@ -626,7 +637,7 @@ function controls() {
 			if (char.spindashCharge > 9) { char.spindashCharge = 9; }
 			char.spindashCharge -= (Math.floor(char.spindashCharge / 0.25) / 256);
 			if (char.spindashCharge < 0) { char.spindashCharge = 0; }
-			if (keysDown[40] == false) {
+			if (keysDown[downKey] == false) {
 				char.currentAnim = anim.jump;
 				char.Gv = (8 + (Math.floor(char.spindashCharge) / 2)) * (char.goingLeft == true ? 1 : -1)
 				//sfx.src = sfxObj.airDash;
@@ -647,14 +658,14 @@ function controls() {
 	}
 
 	if (char.state == -1 && char.jumpState != 2) { // air movement
-		if (!(keysDown[86] && devMode) && keysDown[39]) {
+		if (!(keysDown[86] && devMode) && keysDown[rightKey]) {
 			char.goingLeft = true;
 			if (char.Gv < char.TOP) {
 				char.Gv += char.ACC * 2;
 				if (char.Gv > char.TOP) { char.Gv = char.TOP; }
 			}
 		}
-		if (!(keysDown[86] && devMode) && keysDown[37]) {
+		if (!(keysDown[86] && devMode) && keysDown[leftKey]) {
 			char.goingLeft = false;
 			if (char.Gv > -char.TOP) {
 				char.Gv -= char.ACC * 2;
@@ -663,7 +674,7 @@ function controls() {
 		}
 	}
 
-	if (keysDown[65] == true && char.pDropDash == true && char.state == -1) { // charge the drop dash
+	if (keysDown[jumpKey] == true && char.pDropDash == true && char.state == -1) { // charge the drop dash
 		char.dropCharge += 1;
 	}
 
@@ -757,7 +768,7 @@ function physics() {
 		if (char.Gv < 0) {
 			char.Gv = -0.001;
 		}
-		if (keysDown[37] && keysDown[39] != true) {
+		if (keysDown[leftKey] && keysDown[rightKey] != true) {
 			char.animSpeed = 0.05;
 			char.currentAnim = anim.push;
 		}
@@ -769,7 +780,7 @@ function physics() {
 		if (char.Gv > 0) {
 			char.Gv = 0.001;
 		}
-		if (keysDown[39] && keysDown[37] != true) {
+		if (keysDown[rightKey] && keysDown[leftKey] != true) {
 			char.animSpeed = 0.05;
 			char.currentAnim = anim.push;
 		}
@@ -841,7 +852,7 @@ function physics() {
 			if (char.angle > -Math.PI / 6 && RsideSense[0] == true && char.x > RsideSense[1] - 15 && Math.abs(RsideSense[2] * Math.PI / 180 - char.angle) > Math.PI / 4 && LsideSense[1] != RsideSense[1]) {
 				char.x = RsideSense[1] - 15;	// set the position outside of the wall
 				char.Gv = 0.01 * char.Gv / Math.abs(char.Gv);	// stop your movement
-				if (keysDown[39]) {
+				if (keysDown[rightKey]) {
 					char.animSpeed = 0.05;		// change animation	
 					char.currentAnim = anim.push;
 				}
@@ -849,7 +860,7 @@ function physics() {
 			else if (char.angle < Math.PI / 6 && LsideSense[0] == true && char.x < LsideSense[1] + 15 && Math.abs(LsideSense[2] * Math.PI / 180 - char.angle) > Math.PI / 4 && LsideSense[1] != RsideSense[1]) {
 				char.x = LsideSense[1] + 15;		// (mirrored version of above)
 				char.Gv = 0.01 * char.Gv / Math.abs(char.Gv);
-				if (keysDown[37]) {
+				if (keysDown[leftKey]) {
 					char.animSpeed = 0.05;
 					char.currentAnim = anim.push;
 				}
@@ -897,12 +908,12 @@ function physics() {
 			}
 			//if you're going too slow, fall
 			if (Math.abs(char.Gv) < 0.25 && char.state == 1) {
-				if (char.angle <= -Math.PI / 2) {
+				if (char.angle <= -Math.PI / 2) {  //must be at least perpendicular to ground to fall instead of sliding
 					char.state = -1;
 					char.jumpState = 0;
 				}
-				else if (char.angle > -Math.PI / 2) {
-					char.Gv = -5;
+				else if (char.angle > -Math.PI / 2) { //interestingly, this makes your character faster than if you slide/run down a vertical surface
+					char.Gv = -5; //Ground velocity of 5 is fast enough to complete loops and run up most walls
 					char.golock = 30;
 				}
 			}
@@ -948,12 +959,12 @@ function physics() {
 
 			}
 			if (Math.abs(char.Gv) < 0.25 && char.state == 3) {
-				if (char.angle >= Math.PI / 2) {
+				if (char.angle >= Math.PI / 2) { //must be at least perpendicular to ground to fall instead of sliding
 					char.state = -1;
 					char.jumpState = 0;
 				}
-				else if (char.angle < Math.PI / 2) {
-					char.Gv = 5;
+				else if (char.angle < Math.PI / 2) { //interestingly, this makes your character faster than if you slide/run down a vertical surface
+					char.Gv = 5; //Ground velocity of 5 is fast enough to complete loops and run up most walls
 					char.golock = 30;
 				}
 			}
@@ -1234,7 +1245,7 @@ function physics() {
 		}
 	}
 
-	// reset himing attack on ground
+	// reset homing attack on ground
 	if (char.state != -1) {
 		char.pHoming = true;
 	}
@@ -1257,28 +1268,28 @@ var lastAnim = {anim:null,frame:null};
 function drawChar() {
 	//draw Character
 	//console.log("sonic is drawn");
-	a = (char.currentAnim[Math.floor(char.frameIndex)][2] / 2) * ((char.Gv < 0) ? 1 : -1);
-	b = -(char.currentAnim[Math.floor(char.frameIndex)][3]);//+15;
-	temp = 0;
+	a = (char.currentAnim[Math.floor(char.frameIndex)][2] / 2) * ((char.Gv < 0) ? 1 : -1); //width offset.  made to equal half of sprite width
+	b = -(char.currentAnim[Math.floor(char.frameIndex)][3]);//height offset.  made to equal sprite heght
+	temp = 0; // used to store copy of sonic's physical angle
 	if (configuration.classicAngles) {
-		temp = char.angle
-		char.angle = Math.round(char.angle / (Math.PI / 4)) * (Math.PI / 4); // <-- "classic Angles"
+		temp = char.angle //store sonic's actual angle here while using the main variable for graphical calculations
+		char.angle = Math.round(char.angle / (Math.PI / 4)) * (Math.PI / 4); // <-- clostest multiple of 45 degrees
 	}
 	//c.translate((cam.x == 0?char.x:((cam.x==(-level[1].length*128+vScreenW))?char.x-level[1].length*128+vScreenW:vScreenW/2+(cam.tx-cam.x)))+a*Math.cos(char.angle)-b*Math.sin(char.angle),  (cam.y >= -15?char.y-15:((cam.y==(-(level.length-1)*128+vScreenH))?(char.y-(level.length-1)*128+vScreenH):vScreenH/2+(cam.ty-cam.y)))+b*Math.cos(char.angle)+a*Math.sin(char.angle));
-	c.translate((char.x + cam.x + a * Math.cos(char.angle) - b * Math.sin(char.angle)), (char.y + cam.y + b * Math.cos(char.angle) + a * Math.sin(char.angle)));
+	c.translate((char.x + cam.x + a * Math.cos(char.angle) - b * Math.sin(char.angle)), (char.y + cam.y + b * Math.cos(char.angle) + a * Math.sin(char.angle))); //offset variables used here to account for sprite rotation
 	c.rotate(char.angle);
 	if (configuration.classicAngles) {
-		char.angle = temp;
+		char.angle = temp; //restore sonic's angle to actual value before any physical calculations can be performed
 	}
 	if (motionBlurToggle) {
 		//mBlurCtx.translate((vScreenW/2+(cam.tx-cam.x))+a*Math.cos(char.angle)-b*Math.sin(char.angle),vScreenH/2+(cam.ty-cam.y)+b*Math.cos(char.angle)+a*Math.sin(char.angle));
 		mBlurCtx.translate(char.x + cam.x + a * Math.cos(char.angle) - b * Math.sin(char.angle), char.y + cam.y + b * Math.cos(char.angle) + a * Math.sin(char.angle))
 		mBlurCtx.rotate(char.angle);
 	}
-	if (char.Gv < 0) {
+	if (char.Gv < 0) { //mirror sonic if his ground velocity is toward the left
 		c.scale(-1, 1);
 		if (motionBlurToggle)
-			mBlurCtx.scale(-1, 1);
+			mBlurCtx.scale(-1, 1); //also mirror any motion blur
 	}
 
 	if(lastAnim.anim != char.currentAnim || lastAnim.frame != char.frameIndex){
@@ -1498,7 +1509,7 @@ function loop() { // the main game loop
 		for (var i = 0; i < gamepads.length; i++) {
 			if (gamepads[i] != undefined) {// The only reason why I need this line is because of Chrome. I hate you too, Chrome.
 				if (gamepads[i].buttons[0].pressed) {
-					if (keysDown[65] == false) {
+					if (keysDown[jumpKey] == false) {
 						if (char.rolling && char.currentAnim == anim.spindash) {
 							sfxObj2.spindash.load();
 							sfxObj2.spindash.play();
@@ -1506,19 +1517,19 @@ function loop() { // the main game loop
 						}
 						controlPressed({ keyCode: 65 });
 					}
-					keysDown[65] = true;
+					keysDown[jumpKey] = true;
 				}
 				else {
-					if (keysDown[65] == true) {
+					if (keysDown[jumpKey] == true) {
 						controlReleased({ keyCode: 65 });
 					}
-					keysDown[65] = false;
+					keysDown[jumpKey] = false;
 				}
-				keysDown[13] = (gamepads[i].buttons[9].pressed);
-				keysDown[40] = (gamepads[i].axes[1] > 0.5);
-				keysDown[38] = (gamepads[i].axes[1] < -0.5);
-				keysDown[37] = (gamepads[i].axes[0] < -0.5);
-				keysDown[39] = (gamepads[i].axes[0] > 0.5);
+				keysDown[startKey] = (gamepads[i].buttons[9].pressed);
+				keysDown[downKey] = (gamepads[i].axes[1] > 0.5);
+				keysDown[upKey] = (gamepads[i].axes[1] < -0.5);
+				keysDown[leftKey] = (gamepads[i].axes[0] < -0.5);
+				keysDown[rightKey] = (gamepads[i].axes[0] > 0.5);
 			}
 		}
 	}
@@ -1530,15 +1541,15 @@ function loop() { // the main game loop
 		for (var i = 0; i < gamepads.length; i++) {
 			if (gamepads[i] != undefined) {
 				if (gamepads[i].buttons[0].pressed) {
-					keysDown[13] = true;
+					keysDown[startKey] = true;
 				}
 				else {
-					keysDown[13] = false;
+					keysDown[startKey] = false;
 				}
-				keysDown[40] = (gamepads[i].axes[1] > 0.5);
-				keysDown[38] = (gamepads[i].axes[1] < -0.5);
-				keysDown[37] = (gamepads[i].axes[0] < -0.5);
-				keysDown[39] = (gamepads[i].axes[0] > 0.5);
+				keysDown[downKey] = (gamepads[i].axes[1] > 0.5);
+				keysDown[upKey] = (gamepads[i].axes[1] < -0.5);
+				keysDown[leftKey] = (gamepads[i].axes[0] < -0.5);
+				keysDown[rightKey] = (gamepads[i].axes[0] > 0.5);
 			}
 		}
 		// run the title screen functions (in titleScreen.js)
@@ -1741,23 +1752,23 @@ function loop() { // the main game loop
 			c.fillRect(10, 350 / 3, 100, 100);
 			c.fillRect(950 / 3, 450 / 3, 50, 50);
 			c.fillStyle = "#44444499";
-			if (keysDown[39]) {
+			if (keysDown[rightKey]) {
 				c.fillRect(180 / 3, 425 / 3, 50, 50);
 			}
-			if (keysDown[37]) {
+			if (keysDown[leftKey]) {
 				c.fillRect(10, 425 / 3, 50, 50);
 			}
-			if (keysDown[38]) {
+			if (keysDown[upKey]) {
 				c.fillRect(105 / 3, 350 / 3, 50, 50);
 			}
-			if (keysDown[40]) {
+			if (keysDown[downKey]) {
 				c.fillRect(105 / 3, 500 / 3, 50, 50);
 			}
 
 		}
 	}
 
-	if (keysDown[13] && introAnim >= 120&&!titleActive) {
+	if (keysDown[startKey] && introAnim >= 120&&!titleActive) {
 		if (!pausePressed) {
 			continue1 = !continue1;
 			canvi.style.filter = continue1 ? "" : "grayscale(100%)";
@@ -1792,7 +1803,7 @@ function drawMBlur() {
 
 function controlPressed(e) {
 	if (char.homing == true && char.state == -1) {
-		if (e.keyCode == 65 && char.pHoming == false && keysDown[65] == false) {
+		if (e.keyCode == 65 && char.pHoming == false && keysDown[jumpKey] == false) { //possible bug, checks keycode against efault jump keyt instead of whatever is saved in config
 			char.pHoming = true;
 			char.currentAnim = anim.jump;
 			char.jumpState = 1;
@@ -1828,7 +1839,7 @@ function controlPressed(e) {
 		}
 	}
 	if (char.levitate == true && char.state == -1 && char.jumpState == 1 && char.levTimer > 0) {
-		if (e.keyCode == 65 && keysDown[65] == false) {
+		if (e.keyCode == 65 && keysDown[jumpKey] == false) {
 			char.pHoming = true;
 			char.currentAnim = anim.levi;
 			char.GRV = 0;
@@ -1836,14 +1847,14 @@ function controlPressed(e) {
 		}
 	}
 	if (char.dropDash == true && char.state == -1 && char.jumpState == 1) {
-		if (e.keyCode == 65 && keysDown[65] == false) {
+		if (e.keyCode == 65 && keysDown[jumpKey] == false) { //again, compares keycode to integer 65 instead of controls saved in config.
 			char.pDropDash = true;
 		}
 	}
 }
 
 function controlReleased(e) {
-	if (keysDown[65] == true && e.keyCode == 65) {
+	if (keysDown[jumpKey] == true && e.keyCode == 65) { //again, compares keycode to integer 65 instead of controls saved in config.
 		if (char.levitate == true && char.state == -1 && char.jumpState == 1) {
 			char.GRV = 0.21875;
 		}
@@ -1928,7 +1939,7 @@ function updateTouch(touches) {
 	// console.log(touch2);
 
 	if (touch2.x > 950 && touch2.x < 1100 && touch2.y > 450 && touch2.y < 600 && touch2.total > 0) {//jump button
-		if (keysDown[65] == false) {
+		if (keysDown[jumpKey] == false) {
 			if (char.rolling && char.currentAnim == anim.spindash) {
 				// sfx.src = "";
 				// sfx.src = sfxObj.spindash;
@@ -1939,94 +1950,94 @@ function updateTouch(touches) {
 			}
 			controlPressed({ keyCode: 65 });
 		}
-		keysDown[65] = true;
+		keysDown[jumpKey] = true;
 	}
 	else {
-		if (keysDown[65] == true) {
+		if (keysDown[jumpKey] == true) {
 			// console.log("control released!");
 			controlReleased({ keyCode: 65 });
 		}
-		keysDown[65] = false;
+		keysDown[jumpKey] = false;
 	}
 	if (touch1.x > 30 && touch1.x < 330 && touch1.y > 350 && touch1.y < 650 && touch1.total > 0) {//touchpad
 		//console.log(Math.abs(touch1.x-180).toString()+","+Math.abs(touch1.y-500));
 		if (Math.abs(touch1.x - 180) > Math.abs(touch1.y - 500)) {
 			if (touch1.x > 180) {
-				keysDown[39] = true;
-				keysDown[37] = false;
+				keysDown[rightKey] = true;
+				keysDown[leftKey] = false;
 			}
 			else {
-				keysDown[37] = true;
-				keysDown[39] = false;
+				keysDown[leftKey] = true;
+				keysDown[rightKey] = false;
 			}
 		}
 		else {
-			keysDown[37] = false;
-			keysDown[39] = false;
+			keysDown[leftKey] = false;
+			keysDown[rightKey] = false;
 		}
 		if (Math.abs(touch1.x - 180) < Math.abs(touch1.y - 500)) {
 			if (touch1.y < 500) {
-				keysDown[38] = true;
-				keysDown[40] = false;
+				keysDown[upKey] = true;
+				keysDown[downKey] = false;
 			}
 			else {
-				keysDown[38] = false;
-				keysDown[40] = true;
+				keysDown[upKey] = false;
+				keysDown[downKey] = true;
 			}
 		}
 		else {
-			keysDown[38] = false;
-			keysDown[40] = false;
+			keysDown[upKey] = false;
+			keysDown[downKey] = false;
 		}
 
 		/* if(touch1.y > 425 && touch1.y < 575){
 			if(touch1.x > 180){
-				keysDown[39] = true;
-				keysDown[37] = false;
+				keysDown[rightKey] = true;
+				keysDown[leftKey] = false;
 			}
 			else
 			{
-				keysDown[37] = true;
-				keysDown[39] = false;
+				keysDown[leftKey] = true;
+				keysDown[rightKey] = false;
 			}
 		}
 		else
 		{
-			keysDown[37] = false;
-			keysDown[39] = false;
+			keysDown[leftKey] = false;
+			keysDown[rightKey] = false;
 		}
 		if(touch1.x > 80 && touch1.x < 180){
 			if(touch1.y < 500){
-				keysDown[38] = true;
-				keysDown[40] = false;
+				keysDown[upKey] = true;
+				keysDown[downKey] = false;
 			}
 			else
 			{
-				keysDown[38] = false;
-				keysDown[40] = true;
+				keysDown[upKey] = false;
+				keysDown[downKey] = true;
 			}
 		}
 		else
 		{
-			keysDown[38] = false;
-			keysDown[40] = false;
+			keysDown[upKey] = false;
+			keysDown[downKey] = false;
 		} */
 	}
 	else {
-		keysDown[38] = false;
-		keysDown[40] = false;
-		keysDown[37] = false;
-		keysDown[39] = false;
+		keysDown[upKey] = false;
+		keysDown[downKey] = false;
+		keysDown[leftKey] = false;
+		keysDown[rightKey] = false;
 	}
 	// console.log("touch2: "+touch2);
 	// console.log((vScreenW-50)*(canvi.clientWidth/vScreenW)+","+50*(canvi.clientHeight/vScreenH));
 
 	if(touch2.x > (vScreenW-50)*(canvi.clientWidth/vScreenW)&&touch2.y < 50*(canvi.clientHeight/vScreenH)&& touch2.total > 0){
-		keysDown[13] = true;
+		keysDown[startKey] = true;
 	}
 	else
 	{
-		keysDown[13] = false;
+		keysDown[startKey] = false;
 	}
 }
 
@@ -2079,7 +2090,7 @@ canvi.addEventListener("touchstart", function (e) {
 
 	updateTouch(e.touches);
 	if (titleActive && !inMenu) {
-		keysDown[13] = true;
+		keysDown[startKey] = true;
 	}
 	// if(document.fullscreenEnabled&&document.fullscreenElement==null){
 	// 	document.body.requestFullscreen();
@@ -2093,16 +2104,16 @@ canvi.addEventListener("touchmove", function (e) {
 canvi.addEventListener("touchend", function (e) {
 	e.preventDefault();
 	if (e.touches.length == 0) {
-		if (keysDown[65] == true) {
+		if (keysDown[jumpKey] == true) {
 			// console.log("control released!");
 			controlReleased({ keyCode: 65 });
 		}
-		keysDown[38] = false;
-		keysDown[40] = false;
-		keysDown[37] = false;
-		keysDown[39] = false;
-		keysDown[65] = false;
-		keysDown[13] = false;
+		keysDown[upKey] = false;
+		keysDown[downKey] = false;
+		keysDown[leftKey] = false;
+		keysDown[rightKey] = false;
+		keysDown[jumpKey] = false;
+		keysDown[startKey] = false;
 		avgTouch.active = false;
 	}
 	updateTouch(e.touches);

@@ -55,7 +55,7 @@ document.body.appendChild(logoVid);
 
 // savefile-related state variables 
 var currentSave = 0;
-var saveAnim = 0;
+var saveAnim = 0; //x offset used for scrolling between menu items
 var pSaveSelect = false;
 var charSelectMode = false;
 var selectChar = 0;
@@ -305,7 +305,7 @@ function titleScreen(){
             vScreenH/2+Math.sin(5*Math.cos(titleTimer/37)+3)*(75+50*Math.cos(titleTimer/30)),
             21,0,360);
         c.fill();
-        saveAnim += (currentSave-saveAnim)*0.1;
+        saveAnim += (currentSave-saveAnim)*0.1; //Scrolls through save files.  The number 0.1 at the end is the scrolling speed.  Scrolls 1/10th of the way towards the desired position every froame for an ease in effect
 
         for(var i = 0; i < saveCtx.length; i++){
             saveCanvis[i].width = Math.floor(vScreenW/3)+5;
