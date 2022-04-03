@@ -453,6 +453,32 @@ var startGame = function () {
 	gameStarted = true;
 }
 
+function inputFilter ([]) { 
+	/*layer of code between the keyboard and sonic's actual movements.  
+	Intended to remove input conflicts and pretty up other code
+	only handles direction inputs for now*/
+	
+	var inputs = []; //will store inputs in the following order: 0: x-axis, 1: y axis
+	//messy code goes here
+	if (keysDown[leftKey] && keysDown[rightKey]) {
+		inputs[0] = 0; //opposite inputs cancel eachother out
+	} else if (keysDown[leftKey]) {
+		inputs[0] = -1;
+	} else if (keysDown[rightKey]) {
+		inputs[0] = 1;
+	} else {inputs[0] = 0}
+	
+	if (keysDown[upKey] && keysDown[downKey]) {
+		inputs[1] = 0; //opposite inputs cancel eachother out
+	} else if (keysDown[upKey]) {
+		inputs[1] = -1;
+	} else if (keysDown[downKey]) {
+		inputs[1] = 1;
+	} else {inputs[1] = 0}
+
+	return inputs; //returns inputs in an array
+}
+
 function controls() {
 	//debugging camera. First so it can suppress movement keys
 	if (keysDown[86] && devMode) {
