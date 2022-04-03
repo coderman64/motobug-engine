@@ -453,7 +453,7 @@ var startGame = function () {
 	gameStarted = true;
 }
 
-function inputFilter ([]) { 
+function inputFilter () { 
 	/*layer of code between the keyboard and sonic's actual movements.  
 	Intended to remove input conflicts and pretty up other code
 	only handles direction inputs for now*/
@@ -466,7 +466,7 @@ function inputFilter ([]) {
 		inputs[0] = -1;
 	} else if (keysDown[rightKey]) {
 		inputs[0] = 1;
-	} else {inputs[0] = 0}
+	} else {inputs[0] = 0;}
 	
 	if (keysDown[upKey] && keysDown[downKey]) {
 		inputs[1] = 0; //opposite inputs cancel eachother out
@@ -474,7 +474,7 @@ function inputFilter ([]) {
 		inputs[1] = -1;
 	} else if (keysDown[downKey]) {
 		inputs[1] = 1;
-	} else {inputs[1] = 0}
+	} else {inputs[1] = 0;}
 
 	return inputs; //returns inputs in an array
 }
@@ -515,7 +515,7 @@ function controls() {
 		debug.camX = 0;
 		debug.camY = 0;
 	}
-	if (keysDown[jumpKey] && char.state != -1 && keysDown[downKey] != true && char.pJump != true) {//jumping
+	if (keysDown[jumpKey] && char.state != -1 && inputFilter()[1]!=1 && char.pJump != true) {//jumping
 		char.state = -1;
 		char.anim = anim.jump;
 		//console.log("angle: "+(char.angle*180/Math.PI).toString());
@@ -545,7 +545,7 @@ function controls() {
 		char.yv = -4;
 	}
 	if (char.rolling == false) {
-		if (!(keysDown[86] && devMode) && keysDown[rightKey] && (char.golock <= 0 || char.Gv > 0) && char.state != -1) {
+		if (!(keysDown[86] && devMode) && inputFilter()[0]==1 && (char.golock <= 0 || char.Gv > 0) && char.state != -1) {
 			//check if right directional input is pressed
 			char.goingLeft = false;  
 			if (char.Gv < 0) {  //check if sonic is moving to the left
@@ -570,7 +570,7 @@ function controls() {
 				}
 			}
 		}
-		else if (!(keysDown[86] && devMode) && keysDown[leftKey] && (char.golock <= 0 || char.Gv < 0) && char.state != -1) {
+		else if (!(keysDown[86] && devMode) && inputFilter()[0]==-1 && (char.golock <= 0 || char.Gv < 0) && char.state != -1) {
 			//check if left directional input is pressed
 			char.goingLeft = true;
 
@@ -621,7 +621,7 @@ function controls() {
 					char.animSpeed = Math.abs(char.Gv) / 40 + 0.1;
 				}
 			}
-			if (!(keysDown[86] && devMode) && keysDown[downKey]) {
+			if (!(keysDown[86] && devMode) && inputFilter()[1]==1) {
 				if (Math.abs(char.Gv) > 0.001) {
 					char.rolling = true;
 					//sfx.src = sfxObj.spindash;
@@ -664,7 +664,7 @@ function controls() {
 			if (char.spindashCharge > 9) { char.spindashCharge = 9; }
 			char.spindashCharge -= (Math.floor(char.spindashCharge / 0.25) / 256);
 			if (char.spindashCharge < 0) { char.spindashCharge = 0; }
-			if (keysDown[downKey] == false) {
+			if (inputFilter()[1]!=1) {
 				char.currentAnim = anim.jump;
 				char.Gv = (8 + (Math.floor(char.spindashCharge) / 2)) * (char.goingLeft == true ? -1 : 1)
 				//sfx.src = sfxObj.airDash;
@@ -685,14 +685,14 @@ function controls() {
 	}
 
 	if (char.state == -1 && char.jumpState != 2) { // air movement
-		if (!(keysDown[86] && devMode) && keysDown[rightKey]) {
+		if (!(keysDown[86] && devMode) && inputFilter()[0]==1) {
 			char.goingLeft = false;
 			if (char.Gv < char.TOP) {
 				char.Gv += char.ACC * 2;
 				if (char.Gv > char.TOP) { char.Gv = char.TOP; }
 			}
 		}
-		if (!(keysDown[86] && devMode) && keysDown[leftKey]) {
+		if (!(keysDown[86] && devMode) && inputFilter()[0]==-1) {
 			char.goingLeft = true;
 			if (char.Gv > -char.TOP) {
 				char.Gv -= char.ACC * 2;
@@ -795,7 +795,7 @@ function physics() {
 		if (char.Gv < 0) {
 			char.Gv = -0.001;
 		}
-		if (keysDown[leftKey] && keysDown[rightKey] != true) {
+		if (inputFilter()[0]==-1) {
 			char.animSpeed = 0.05;
 			char.currentAnim = anim.push;
 		}
@@ -807,7 +807,7 @@ function physics() {
 		if (char.Gv > 0) {
 			char.Gv = 0.001;
 		}
-		if (keysDown[rightKey] && keysDown[leftKey] != true) {
+		if (inputFilter()[0]==1) {
 			char.animSpeed = 0.05;
 			char.currentAnim = anim.push;
 		}
@@ -879,7 +879,7 @@ function physics() {
 			if (char.angle > -Math.PI / 6 && RsideSense[0] == true && char.x > RsideSense[1] - 15 && Math.abs(RsideSense[2] * Math.PI / 180 - char.angle) > Math.PI / 4 && LsideSense[1] != RsideSense[1]) {
 				char.x = RsideSense[1] - 15;	// set the position outside of the wall
 				char.Gv = 0.01 * char.Gv / Math.abs(char.Gv);	// stop your movement
-				if (keysDown[rightKey]) {
+				if (inputFilter()[0]==1) {
 					char.animSpeed = 0.05;		// change animation	
 					char.currentAnim = anim.push;
 				}
@@ -887,7 +887,7 @@ function physics() {
 			else if (char.angle < Math.PI / 6 && LsideSense[0] == true && char.x < LsideSense[1] + 15 && Math.abs(LsideSense[2] * Math.PI / 180 - char.angle) > Math.PI / 4 && LsideSense[1] != RsideSense[1]) {
 				char.x = LsideSense[1] + 15;		// (mirrored version of above)
 				char.Gv = 0.01 * char.Gv / Math.abs(char.Gv);
-				if (keysDown[leftKey]) {
+				if (inputFilter()[0]==-1) {
 					char.animSpeed = 0.05;
 					char.currentAnim = anim.push;
 				}
@@ -1743,6 +1743,7 @@ function loop() { // the main game loop
 			debugText = "<strong>Angle (deg):" + Math.round(char.angle * 180 / Math.PI).toString() + "<br>";
 			debugText += "Wall state: " + (char.state).toString() + "<br>";
 			debugText += "level objects" + (level[0].length).toString() + "<br>";
+			debugText += "player input" + (inputFilter()).toString() + "<br>";
 			debugText += "Hor. Velocity: " + (Math.round(char.Gv * 100) / 100).toString() + "<br>";
 			debugText += "Vert. Velocity: " + (Math.round(char.yv * 100) / 100).toString() + "<br>";
 			debugText += "Spindash Charge: " + (Math.round(char.spindashCharge * 100) / 100).toString() + "<br>";
