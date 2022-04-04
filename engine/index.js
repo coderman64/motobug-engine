@@ -1052,10 +1052,14 @@ function physics() {
 				if (frontSense[2] > 45 && backSense[2] > 45) {
 					char.state = 3;
 					char.rolling = false;
+					char.x = char.x-Math.sin(Math.PI*(frontSense[2]+backSense[2])/360)*15;
+					char.y = char.y-15+Math.cos(Math.PI*(frontSense[2]+backSense[2])/360)*15;
 				}
 				else if (frontSense[2] < -45 && backSense[2] < -45) {
 					char.state = 1;
 					char.rolling = false;
+					char.x = char.x-Math.sin(Math.PI*(frontSense[2]+backSense[2])/360)*15;
+					char.y = char.y-15+Math.cos(Math.PI*(frontSense[2]+backSense[2])/360)*15;
 				}
 				else {
 					char.state = 0;
@@ -1091,10 +1095,14 @@ function physics() {
 				if (frontSense[2] > 45) {
 					char.state = 3;
 					char.rolling = false;
+					char.x = char.x-Math.sin(Math.PI*(frontSense[2])/360)*15;
+					char.y = char.y-15+Math.cos(Math.PI*(frontSense[2])/360)*15;
 				}
 				else if (frontSense[2] < -45) {
 					char.state = 1;
 					char.rolling = false;
+					char.x = char.x-Math.sin(Math.PI*(frontSense[2])/360)*15;
+					char.y = char.y-15+Math.cos(Math.PI*(frontSense[2])/360)*15;
 				}
 				else {
 					char.state = 0;
