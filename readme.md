@@ -50,8 +50,6 @@ This engine is based loosely on the original engine for the Genesis sonic games.
 
 As previously mentioned, there is a level designer called [Motobug Studio](https://github.com/coderman64/motobug-engine-designer) which should make it easy to desgin and test stages for Motobug. I hope to compile a guide for getting started with this later on, but for now, you should be able to figure out most things just by poking about the interface. Hopefully.
 
-If you are possibly interested in development in any fashion 
-
 ## Media and Resources
 
 Since I am not the best artist, I have used art and graphics from SEGA as well as various other fan artists on the internet:
