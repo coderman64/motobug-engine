@@ -557,8 +557,7 @@ function controls(xInput, yInput, jumpButton) {
 		char.yv = -4;
 	}
 	if (char.rolling == false) {
-
-	if (!(keysDown[86] && devMode) && this.xInput==1 && (char.golock <= 0) && char.state != -1) {
+		if (!(keysDown[86] && devMode) && this.xInput==1 && (char.golock <= 0) && char.state != -1) {
 			//check if right directional input is pressed
 			char.goingLeft = false;  
 			if (char.Gv < 0) {  //check if sonic is moving to the left
