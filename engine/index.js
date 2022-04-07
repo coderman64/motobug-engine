@@ -557,7 +557,8 @@ function controls(xInput, yInput, jumpButton) {
 		char.yv = -4;
 	}
 	if (char.rolling == false) {
-		if (!(keysDown[86] && devMode) && this.xInput==1 && (char.golock <= 0 || char.Gv > 0) && char.state != -1) {
+
+	if (!(keysDown[86] && devMode) && this.xInput==1 && (char.golock <= 0) && char.state != -1) {
 			//check if right directional input is pressed
 			char.goingLeft = false;  
 			if (char.Gv < 0) {  //check if sonic is moving to the left
@@ -691,9 +692,9 @@ function controls(xInput, yInput, jumpButton) {
 	}
 	if (char.golock > 0) {
 		char.golock--;
-		if (Math.abs(char.Gv) < 0.1) {
-			char.golock = 0;
-		}
+		// if (Math.abs(char.Gv) < 0.1) {
+		// 	char.golock = 0;
+		// }
 	}
 
 	if (char.state == -1 && char.jumpState != 2) { // air movement
@@ -931,7 +932,7 @@ function physics(xInput, yInput, jumpButton) {
 				char.x = (isNaN((backSense[1] + frontSense[1]) / 2) ? char.y : ((backSense[1] + frontSense[1]) / 2));
 				var angle1 = ((isNaN(backSense[2] * Math.PI / 180) ? char.angle : backSense[2] * Math.PI / 180) + (isNaN(frontSense[2] * Math.PI / 180) ? char.angle : frontSense[2] * Math.PI / 180)) / 2;
 				char.angle = (Math.abs(angle1 - char.angle) < Math.PI / 4) ? angle1 : (Math.abs(backSense[2] * Math.PI / 180 - char.angle) < Math.PI / 4 ? backSense[2] * Math.PI / 180 : Math.abs(frontSense[2] * Math.PI / 180 - char.angle) < Math.PI / 4 ? frontSense[2] * Math.PI / 180 : char.angle)
-				if (char.angle > -Math.PI / 4 && char.state == 1) {
+				if (char.angle >= -Math.PI / 4 && char.state == 1) {
 					char.state = 0;
 				}
 				if (char.angle < -3 * Math.PI / 4 && char.state == 1) {
@@ -950,14 +951,10 @@ function physics(xInput, yInput, jumpButton) {
 				char.jumpState = 0;
 			}
 			//if you're going too slow, fall
-			if (Math.abs(char.Gv) < 0.25 && char.state == 1) {
+			if (Math.abs(char.Gv) < 2.5 && char.state == 1) {
 				if (char.angle <= -Math.PI / 2) {  //must be at least perpendicular to ground to fall instead of sliding
 					char.state = -1;
 					char.jumpState = 0;
-				}
-				else if (char.angle > -Math.PI / 2) { //interestingly, this makes your character faster than if you slide/run down a vertical surface
-					char.Gv = -5; //Ground velocity of 5 is fast enough to complete loops and run up most walls
-					char.golock = 30;
 				}
 			}
 		}
@@ -982,7 +979,8 @@ function physics(xInput, yInput, jumpButton) {
 				char.x = (isNaN((backSense[1] + frontSense[1]) / 2) ? char.x : ((backSense[1] + frontSense[1]) / 2));
 				var angle1 = ((isNaN(backSense[2] * Math.PI / 180) ? char.angle : backSense[2] * Math.PI / 180) + (isNaN(frontSense[2] * Math.PI / 180) ? char.angle : frontSense[2] * Math.PI / 180)) / 2;
 				char.angle = (Math.abs(angle1 - char.angle) < Math.PI / 4) ? angle1 : (Math.abs(backSense[2] * Math.PI / 180 - char.angle) < Math.PI / 4 ? backSense[2] * Math.PI / 180 : Math.abs(frontSense[2] * Math.PI / 180 - char.angle) < Math.PI / 4 ? frontSense[2] * Math.PI / 180 : char.angle)
-				if (char.angle < Math.PI / 4 && char.state == 3) {
+				
+				if (char.angle <= Math.PI / 4 && char.state == 3) {
 					char.state = 0;
 				}
 
@@ -1001,14 +999,10 @@ function physics(xInput, yInput, jumpButton) {
 				char.jumpState = 0;
 
 			}
-			if (Math.abs(char.Gv) < 0.25 && char.state == 3) {
+			if (Math.abs(char.Gv) < 2.5 && char.state == 3) {
 				if (char.angle >= Math.PI / 2) { //must be at least perpendicular to ground to fall instead of sliding
 					char.state = -1;
 					char.jumpState = 0;
-				}
-				else if (char.angle < Math.PI / 2) { //interestingly, this makes your character faster than if you slide/run down a vertical surface
-					char.Gv = 5; //Ground velocity of 5 is fast enough to complete loops and run up most walls
-					char.golock = 30;
 				}
 			}
 		}
@@ -1101,18 +1095,31 @@ function physics(xInput, yInput, jumpButton) {
 				if (frontSense[2] > 45 && backSense[2] > 45) {
 					char.state = 3;
 					char.rolling = false;
+					char.x = char.x-Math.sin(Math.PI*(frontSense[2]+backSense[2])/360)*15;
+					char.y = char.y-15+Math.cos(Math.PI*(frontSense[2]+backSense[2])/360)*15;
 				}
 				else if (frontSense[2] < -45 && backSense[2] < -45) {
 					char.state = 1;
 					char.rolling = false;
+					char.x = char.x-Math.sin(Math.PI*(frontSense[2]+backSense[2])/360)*15;
+					char.y = char.y-15+Math.cos(Math.PI*(frontSense[2]+backSense[2])/360)*15;
 				}
 				else {
 					char.state = 0;
 					char.rolling = false;
 				}
 				char.y = backSense[1] - rotY;
-				char.Gv = char.yv * Math.sin(backSense[2] * Math.PI / 180) + char.xv * Math.cos(backSense[2] * Math.PI / 180);
+
+				// change the ground velocity when you land on ground
+				// char.Gv = char.yv * Math.sin(backSense[2] * Math.PI / 180) + char.xv * Math.cos(backSense[2] * Math.PI / 180);
 				char.angle = backSense[2] * Math.PI / 180;
+				if(Math.abs(char.angle) < Math.PI/8)
+					char.Gv = char.xv;
+				else if(Math.abs(char.angle) < Math.PI/4)
+					char.Gv = Math.abs(char.xv) > Math.abs(char.yv)?char.xv:char.yv*0.5*Math.sign(Math.sin(char.angle))
+				else
+					char.Gv = Math.abs(char.xv) > Math.abs(char.yv)?char.xv:char.yv*Math.sign(Math.sin(char.angle))
+
 				char.yv = 0;
 				if (char.dropCharge >= 20) { //activate drop dash
 					char.Gv = Math.min(char.Gv / 2 + 8 * (char.goingLeft ? -1 : 1), 12);
@@ -1127,23 +1134,33 @@ function physics(xInput, yInput, jumpButton) {
 		}
 		/// LANDING (RIGHT SENSOR) ///
 		if (frontSense[0] == true && frontSense[1] < char.y + rotY + char.yv && (backSense[0] == true ? (frontSense[1] <= backSense[1]) : true) && (Math.abs(char.angle % (Math.PI * 2)) < Math.PI / 2 && char.yv >= 0)) {
-			// console.log("foot2");
 			if (Math.abs(frontSense[2]) < 80) {
 				if (frontSense[2] > 45) {
 					char.state = 3;
 					char.rolling = false;
+					char.x = char.x-Math.sin(Math.PI*(frontSense[2])/360)*15;
+					char.y = char.y-15+Math.cos(Math.PI*(frontSense[2])/360)*15;
 				}
 				else if (frontSense[2] < -45) {
 					char.state = 1;
 					char.rolling = false;
+					char.x = char.x-Math.sin(Math.PI*(frontSense[2])/360)*15;
+					char.y = char.y-15+Math.cos(Math.PI*(frontSense[2])/360)*15;
 				}
 				else {
 					char.state = 0;
 					char.rolling = false;
 				}
 				char.y = frontSense[1] - rotY;
-				char.Gv = char.yv * Math.sin(frontSense[2] * Math.PI / 180) + char.xv * Math.cos(frontSense[2] * Math.PI / 180);
+				// char.Gv = char.yv * Math.sin(frontSense[2] * Math.PI / 180) + char.xv * Math.cos(frontSense[2] * Math.PI / 180);
 				char.angle = frontSense[2] * Math.PI / 180;
+				if(Math.abs(char.angle) < Math.PI/8)
+					char.Gv = char.xv;
+				else if(Math.abs(char.angle) < Math.PI/4)
+					char.Gv = Math.abs(char.xv) > Math.abs(char.yv)?char.xv:char.yv*0.5*Math.sign(Math.sin(char.angle))
+				else
+					char.Gv = Math.abs(char.xv) > Math.abs(char.yv)?char.xv:char.yv*Math.sign(Math.sin(char.angle))
+
 				char.yv = 0;
 				if (char.dropCharge >= 20) { //activate drop dash
 					char.Gv = Math.min(char.Gv / 2 + 8 * (char.goingLeft ? -1 : 1), 12);
@@ -1220,13 +1237,12 @@ function physics(xInput, yInput, jumpButton) {
 
 
 	/// SLIDE DOWN SLOPE IF NOT FAST ENOUGH ///
-	if (Math.abs(char.angle + Math.PI / 4) < Math.PI / 8 && Math.abs(char.Gv) < 0.1 && char.state != -1) {
-		char.Gv = -2;
+	if (Math.abs(char.angle) > Math.PI / 4 && 
+		Math.abs(char.Gv) < 2.5 && char.state != -1 && char.golock <= 1) {
+		char.Gv = 0.001 * Math.sign(char.Gv);
 		char.golock = 30;
-	}
-	if (Math.abs(char.angle - Math.PI / 4) < Math.PI / 8 && Math.abs(char.Gv) < 0.1 && char.state != -1) {
-		char.Gv = 2;
-		char.golock = 30;
+		char.y -= 1;
+		char.state = -1;
 	}
 
 	// add the character collision rectangle to the debug screen.
@@ -1759,14 +1775,15 @@ function loop() { // the main game loop
 			debugText = "<strong>Angle (deg):" + Math.round(char.angle * 180 / Math.PI).toString() + "<br>";
 			debugText += "Wall state: " + (char.state).toString() + "<br>";
 			debugText += "level objects" + (level[0].length).toString() + "<br>";
-			debugText += "player input" + (inputFilter()).toString() + "<br>";
-			debugText += "Hor. Velocity: " + (Math.round(char.Gv * 100) / 100).toString() + "<br>";
+			debugText += "Hor. Velocity: " + (Math.round(char.xv * 100) / 100).toString() + "<br>";
 			debugText += "Vert. Velocity: " + (Math.round(char.yv * 100) / 100).toString() + "<br>";
+			debugText += "Ground Velocity: " + (Math.round(char.Gv * 1000) / 1000).toString() + "<br>";
 			debugText += "Spindash Charge: " + (Math.round(char.spindashCharge * 100) / 100).toString() + "<br>";
 			debugText += "FPS factor: " + fpsFactor + "<br>";
 			debugText += "Layer: " + (char.layer).toString() + "<br>";
 			debugText += "Player Pos.: (" + Math.floor(char.x) + "," + Math.floor(char.y) + ")<br>";
 			debugText += "frame count:" + Math.round(frameCount).toString() + "<br>";
+			debugText += "Control Lock:"+char.golock.toString()+"<br>"
 			debugText += "Avg. FPS:" + Math.round(avgFPS).toString() + "<br>";
 			debugText += "FPS:" + Math.round(1000 / (newMillis > lastMillis ? newMillis - lastMillis : newMillis - (lastMillis - 1000))).toString() + "</strong><br>";
 			debugText += "Camera: (" + Math.floor(cam.x) + "," + Math.floor(cam.y) + ")<br>";
