@@ -528,10 +528,10 @@ function controls(xInput, yInput, jumpButton) {
 		debug.camY = 0;
 	}
 	if (this.jumpButton && char.state != -1 && this.yInput!=1 && char.pJump != true) {//jumping
-		char.state = -1;
+		char.state = -1; //release sonic from floor/wall for jump
 		char.anim = anim.jump;
 		//console.log("angle: "+(char.angle*180/Math.PI).toString());
-		char.yv -= char.JMP * Math.cos(char.angle);
+		char.yv -= char.JMP * Math.cos(char.angle); //propel sonic upwards
 		//console.log("yv: "+char.yv.toString());
 		char.Gv = char.xv + char.JMP * Math.sin(char.angle);
 		//console.log("xv: "+char.Gv.toString());
@@ -542,12 +542,12 @@ function controls(xInput, yInput, jumpButton) {
 		//sfx.src = sfxObj.jump;
 		sfxObj2.jump.load();
 		sfxObj2.jump.play();
-		char.pDropDash = false;
+		char.pDropDash = false; //reset drop dash
 		char.dropCharge = 0;
-		char.pJump = true;
+		char.pJump = true; //has jumped
 	}
-	if (!this.jumpButton && char.state != -1) {
-		char.pJump = false;
+	if (!this.jumpButton && char.state != -1) { //sonic has landed with jump button released
+		char.pJump = false; //has not jumped
 	}
 	if (!this.jumpButton && char.state == -1) { // reset drop dash if you release the jump button
 		char.dropCharge = 0;
@@ -1773,7 +1773,11 @@ function loop() { // the main game loop
 			c.fillStyle = "black";
 			debugText = "<strong>Angle (deg):" + Math.round(char.angle * 180 / Math.PI).toString() + "<br>";
 			debugText += "Wall state: " + (char.state).toString() + "<br>";
-			debugText += "level objects" + (level[0].length).toString() + "<br>";
+			debugText += "input: " + (inputFilter()).toString() + "<br>";
+			debugText += "rolling: " + (char.rolling).toString() + "<br>";
+			debugText += "pJump: " + (char.pJump).toString() + "<br>";
+			debugText += "jumpState: " + (char.jumpState).toString() + "<br>";
+			debugText += "level objects: " + (level[0].length).toString() + "<br>";
 			debugText += "Hor. Velocity: " + (Math.round(char.xv * 100) / 100).toString() + "<br>";
 			debugText += "Vert. Velocity: " + (Math.round(char.yv * 100) / 100).toString() + "<br>";
 			debugText += "Ground Velocity: " + (Math.round(char.Gv * 1000) / 1000).toString() + "<br>";
