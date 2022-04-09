@@ -177,7 +177,7 @@ var char = {
 	rings: 0,
 	homing: true,
 	pHoming: false,
-	jumpReleased: false, //makes sure that you don't homing attack by just holding down jump
+	jumpReleased: false, //not used-makes sure that you don't homing attack by just holding down jump
 	layer: 0,
 	pAngle: 0,
 	deathTimer:0,
@@ -1775,7 +1775,9 @@ function loop() { // the main game loop
 			debugText += "Wall state: " + (char.state).toString() + "<br>";
 			debugText += "input: " + (inputFilter()).toString() + "<br>";
 			debugText += "rolling: " + (char.rolling).toString() + "<br>";
-			debugText += "pJump: " + (char.pJump).toString() + "<br>";
+			//debugText += "pJump: " + (char.pJump).toString() + "<br>";
+			//debugText += "pDropDash: " + (char.pDropDash).toString() + "<br>";
+			//debugText += "Drop dash charge: " + (char.dropCharge).toString() + "<br>";
 			debugText += "jumpState: " + (char.jumpState).toString() + "<br>";
 			debugText += "level objects: " + (level[0].length).toString() + "<br>";
 			debugText += "Hor. Velocity: " + (Math.round(char.xv * 100) / 100).toString() + "<br>";
@@ -1882,6 +1884,7 @@ function drawMBlur() {
 function controlPressed(e) {
 	if (char.homing == true && char.state == -1) {
 		if (e.keyCode == 65 && char.pHoming == false && keysDown[jumpKey] == false) { //possible bug, checks keycode against efault jump keyt instead of whatever is saved in config
+			console.log("control pressed ");
 			char.pHoming = true;
 			char.currentAnim = anim.jump;
 			char.jumpState = 1;
@@ -1918,6 +1921,7 @@ function controlPressed(e) {
 	}
 	if (char.levitate == true && char.state == -1 && char.jumpState == 1 && char.levTimer > 0) {
 		if (e.keyCode == 65 && keysDown[jumpKey] == false) {
+			console.log("control pressed ");
 			char.pHoming = true;
 			char.currentAnim = anim.levi;
 			char.GRV = 0;
@@ -1926,7 +1930,8 @@ function controlPressed(e) {
 	}
 	if (char.dropDash == true && char.state == -1 && char.jumpState == 1) {
 		if (e.keyCode == 65 && keysDown[jumpKey] == false) { //again, compares keycode to integer 65 instead of controls saved in config.
-			char.pDropDash = true;
+			console.log("control pressed ");
+			char.pDropDash = true; //this is the only line of code that sets the dropDash to true
 		}
 	}
 }
@@ -1934,6 +1939,7 @@ function controlPressed(e) {
 function controlReleased(e) {
 	if (keysDown[jumpKey] == true && e.keyCode == 65) { //again, compares keycode to integer 65 instead of controls saved in config.
 		if (char.levitate == true && char.state == -1 && char.jumpState == 1) {
+			console.log("control released");
 			char.GRV = 0.21875;
 		}
 	}
