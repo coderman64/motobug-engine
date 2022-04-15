@@ -177,7 +177,7 @@ var char = {
 	rings: 0,
 	homing: true,
 	pHoming: false,
-	jumpReleased: false, //makes sure that you don't homing attack by just holding down jump
+	jumpReleased: false, //not used-makes sure that you don't homing attack by just holding down jump
 	layer: 0,
 	pAngle: 0,
 	deathTimer:0,
@@ -453,28 +453,66 @@ var startGame = function () {
 	gameStarted = true;
 }
 
-function controls() {
+function inputFilter () { 
+	/*layer of code between the keyboard and sonic's actual movements.  
+	Intended to remove input conflicts and pretty up other code
+	only handles direction inputs for now*/
+	
+	var inputs = []; //will store inputs in the following order: 0: x-axis, 1: y axis, 2: jump button
+	//messy code goes here
+
+	//x axis: left: -1, neutral: 0, right, 1
+	if (keysDown[leftKey] && keysDown[rightKey]) {
+		inputs[0] = 0; //opposite inputs cancel eachother out
+	} else if (keysDown[leftKey]) {
+		inputs[0] = -1;
+	} else if (keysDown[rightKey]) {
+		inputs[0] = 1;
+	} else {inputs[0] = 0;}
+	
+	//y axis: up: -1, neutral: 0, down, -1
+	if (keysDown[upKey] && keysDown[downKey]) {
+		inputs[1] = 0; //opposite inputs cancel eachother out
+	} else if (keysDown[upKey]) {
+		inputs[1] = -1;
+	} else if (keysDown[downKey]) {
+		inputs[1] = 1;
+	} else {inputs[1] = 0;}
+
+	if (keysDown[jumpKey]) { //jump only has true or false values
+		inputs[2]=true;
+	}
+	else {inputs[2]=false;}
+
+	return inputs; //returns inputs in an array
+}
+
+function controls(xInput, yInput, jumpButton) {
+	this.xInput=xInput;
+	this.yInput=yInput;
+	this.jumpButton=jumpButton;
+	
 	//debugging camera. First so it can suppress movement keys
-	if (keysDown[86] && devMode) {
-		if (keysDown[leftKey]) {
+	if (keysDown[86] && devMode) { //hold v + arrow keys to pan debug camera.  Hold shift + v to pan faster
+		if (this.xInput == -1) {
 			debug.camX += 8;
 			if (keysDown[16]) {
 				debug.camX += 8;
 			}
 		}
-		if (keysDown[upKey]) {
+		if (this.yInput == -1) {
 			debug.camY += 8;
 			if (keysDown[16]) {
 				debug.camY += 8;
 			}
 		}
-		if (keysDown[rightKey]) {
+		if (this.xInput == 1) {
 			debug.camX -= 8;
 			if (keysDown[16]) {
 				debug.camX -= 8;
 			}
 		}
-		if (keysDown[downKey]) {
+		if (this.yInput == 1) {
 			debug.camY -= 8;
 			if (keysDown[16]) {
 				debug.camY -= 8;
@@ -489,11 +527,11 @@ function controls() {
 		debug.camX = 0;
 		debug.camY = 0;
 	}
-	if (keysDown[jumpKey] && char.state != -1 && keysDown[downKey] != true && char.pJump != true) {//jumping
-		char.state = -1;
+	if (this.jumpButton && char.state != -1 && this.yInput!=1 && char.pJump != true) {//jumping
+		char.state = -1; //release sonic from floor/wall for jump
 		char.anim = anim.jump;
 		//console.log("angle: "+(char.angle*180/Math.PI).toString());
-		char.yv -= char.JMP * Math.cos(char.angle);
+		char.yv -= char.JMP * Math.cos(char.angle); //propel sonic upwards
 		//console.log("yv: "+char.yv.toString());
 		char.Gv = char.xv + char.JMP * Math.sin(char.angle);
 		//console.log("xv: "+char.Gv.toString());
@@ -504,22 +542,22 @@ function controls() {
 		//sfx.src = sfxObj.jump;
 		sfxObj2.jump.load();
 		sfxObj2.jump.play();
-		char.pDropDash = false;
+		char.pDropDash = false; //reset drop dash
 		char.dropCharge = 0;
-		char.pJump = true;
+		char.pJump = true; //has jumped
 	}
-	if (!keysDown[jumpKey] && char.state != -1) {
-		char.pJump = false;
+	if (!this.jumpButton && char.state != -1) { //sonic has landed with jump button released
+		char.pJump = false; //has not jumped
 	}
-	if (!keysDown[jumpKey] && char.state == -1) { // reset drop dash if you release the jump button
+	if (!this.jumpButton && char.state == -1) { // reset drop dash if you release the jump button
 		char.dropCharge = 0;
 		char.pDropDash = false;
 	}
-	if (char.state == -1 && keysDown[jumpKey] != true && char.jumpState == 1 && char.yv < -4) { // controllable jump height
+	if (char.state == -1 && this.jumpButton != true && char.jumpState == 1 && char.yv < -4) { // controllable jump height
 		char.yv = -4;
 	}
 	if (char.rolling == false) {
-		if (!(keysDown[86] && devMode) && keysDown[rightKey] && (char.golock <= 0) && char.state != -1) {
+		if (!(keysDown[86] && devMode) && this.xInput==1 && (char.golock <= 0) && char.state != -1) {
 			//check if right directional input is pressed
 			char.goingLeft = false;  
 			if (char.Gv < 0) {  //check if sonic is moving to the left
@@ -544,7 +582,7 @@ function controls() {
 				}
 			}
 		}
-		else if (!(keysDown[86] && devMode) && keysDown[leftKey] && (char.golock <= 0 || char.Gv < 0) && char.state != -1) {
+		else if (!(keysDown[86] && devMode) && this.xInput == -1 && (char.golock <= 0 || char.Gv < 0) && char.state != -1) {
 			//check if left directional input is pressed
 			char.goingLeft = true;
 
@@ -595,7 +633,7 @@ function controls() {
 					char.animSpeed = Math.abs(char.Gv) / 40 + 0.1;
 				}
 			}
-			if (!(keysDown[86] && devMode) && keysDown[downKey]) {
+			if (!(keysDown[86] && devMode) && this.yInput==1) {
 				if (Math.abs(char.Gv) > 0.001) {
 					char.rolling = true;
 					//sfx.src = sfxObj.spindash;
@@ -603,7 +641,7 @@ function controls() {
 					sfxObj2.spindash.play();
 				}
 				else {
-					if (keysDown[jumpKey]) {
+					if (this.jumpButton) {
 						char.currentAnim = anim.spindash;
 						char.animSpeed = 1;
 						char.rolling = true;
@@ -638,7 +676,7 @@ function controls() {
 			if (char.spindashCharge > 9) { char.spindashCharge = 9; }
 			char.spindashCharge -= (Math.floor(char.spindashCharge / 0.25) / 256);
 			if (char.spindashCharge < 0) { char.spindashCharge = 0; }
-			if (keysDown[downKey] == false) {
+			if (this.yInput!=1) {
 				char.currentAnim = anim.jump;
 				char.Gv = (8 + (Math.floor(char.spindashCharge) / 2)) * (char.goingLeft == true ? -1 : 1)
 				//sfx.src = sfxObj.airDash;
@@ -659,14 +697,14 @@ function controls() {
 	}
 
 	if (char.state == -1 && char.jumpState != 2) { // air movement
-		if (!(keysDown[86] && devMode) && keysDown[rightKey]) {
+		if (!(keysDown[86] && devMode) && this.xInput==1) {
 			char.goingLeft = false;
 			if (char.Gv < char.TOP) {
 				char.Gv += char.ACC * 2;
 				if (char.Gv > char.TOP) { char.Gv = char.TOP; }
 			}
 		}
-		if (!(keysDown[86] && devMode) && keysDown[leftKey]) {
+		if (!(keysDown[86] && devMode) && this.xInput==-1) {
 			char.goingLeft = true;
 			if (char.Gv > -char.TOP) {
 				char.Gv -= char.ACC * 2;
@@ -675,7 +713,7 @@ function controls() {
 		}
 	}
 
-	if (keysDown[jumpKey] == true && char.pDropDash == true && char.state == -1) { // charge the drop dash
+	if (this.jumpButton == true && char.pDropDash == true && char.state == -1) { // charge the drop dash
 		char.dropCharge += 1;
 	}
 
@@ -762,14 +800,18 @@ function resetLevel() {
 }
 
 var backSense, frontSense, LsideSense, RsideSense;
-function physics() {
+function physics(xInput, yInput, jumpButton) {
+	//this function doesnt actually use up/down inputs or the jump button, they are only included for future-proofing
+	this.xInput=xInput;
+	this.yInput=yInput;
+	this.jumpButton=jumpButton;
 	// make the beginning of the stage act like a wall
 	if (char.x < 15) {
 		char.x = 15;
 		if (char.Gv < 0) {
 			char.Gv = -0.001;
 		}
-		if (keysDown[leftKey] && keysDown[rightKey] != true) {
+		if (this.xInput==-1) {
 			char.animSpeed = 0.05;
 			char.currentAnim = anim.push;
 		}
@@ -781,7 +823,7 @@ function physics() {
 		if (char.Gv > 0) {
 			char.Gv = 0.001;
 		}
-		if (keysDown[rightKey] && keysDown[leftKey] != true) {
+		if (this.xInput==1) {
 			char.animSpeed = 0.05;
 			char.currentAnim = anim.push;
 		}
@@ -853,7 +895,7 @@ function physics() {
 			if (char.angle > -Math.PI / 6 && RsideSense[0] == true && char.x > RsideSense[1] - 15 && Math.abs(RsideSense[2] * Math.PI / 180 - char.angle) > Math.PI / 4 && LsideSense[1] != RsideSense[1]) {
 				char.x = RsideSense[1] - 15;	// set the position outside of the wall
 				char.Gv = 0.01 * char.Gv / Math.abs(char.Gv);	// stop your movement
-				if (keysDown[rightKey]) {
+				if (this.xInput==1) {
 					char.animSpeed = 0.05;		// change animation	
 					char.currentAnim = anim.push;
 				}
@@ -861,7 +903,7 @@ function physics() {
 			else if (char.angle < Math.PI / 6 && LsideSense[0] == true && char.x < LsideSense[1] + 15 && Math.abs(LsideSense[2] * Math.PI / 180 - char.angle) > Math.PI / 4 && LsideSense[1] != RsideSense[1]) {
 				char.x = LsideSense[1] + 15;		// (mirrored version of above)
 				char.Gv = 0.01 * char.Gv / Math.abs(char.Gv);
-				if (keysDown[leftKey]) {
+				if (this.xInput==-1) {
 					char.animSpeed = 0.05;
 					char.currentAnim = anim.push;
 				}
@@ -1621,11 +1663,11 @@ function loop() { // the main game loop
 
 
 		//----------------------------------CONTROLS----------------------------------
-		controls();
+		controls(inputFilter()[0], inputFilter()[1], inputFilter()[2]);
 
 		//----------------------------------PHYSICS-----------------------------------
 		if (introAnim > 80&&char.deathTimer <=0)
-			physics();
+			physics(inputFilter()[0], inputFilter()[1], inputFilter()[2]);
 		
 		// do the death animation
 		if(char.deathTimer > 0){
@@ -1731,7 +1773,13 @@ function loop() { // the main game loop
 			c.fillStyle = "black";
 			debugText = "<strong>Angle (deg):" + Math.round(char.angle * 180 / Math.PI).toString() + "<br>";
 			debugText += "Wall state: " + (char.state).toString() + "<br>";
-			debugText += "level objects" + (level[0].length).toString() + "<br>";
+			debugText += "input: " + (inputFilter()).toString() + "<br>";
+			debugText += "rolling: " + (char.rolling).toString() + "<br>";
+			//debugText += "pJump: " + (char.pJump).toString() + "<br>";
+			//debugText += "pDropDash: " + (char.pDropDash).toString() + "<br>";
+			//debugText += "Drop dash charge: " + (char.dropCharge).toString() + "<br>";
+			debugText += "jumpState: " + (char.jumpState).toString() + "<br>";
+			debugText += "level objects: " + (level[0].length).toString() + "<br>";
 			debugText += "Hor. Velocity: " + (Math.round(char.xv * 100) / 100).toString() + "<br>";
 			debugText += "Vert. Velocity: " + (Math.round(char.yv * 100) / 100).toString() + "<br>";
 			debugText += "Ground Velocity: " + (Math.round(char.Gv * 1000) / 1000).toString() + "<br>";
@@ -1836,6 +1884,7 @@ function drawMBlur() {
 function controlPressed(e) {
 	if (char.homing == true && char.state == -1) {
 		if (e.keyCode == 65 && char.pHoming == false && keysDown[jumpKey] == false) { //possible bug, checks keycode against efault jump keyt instead of whatever is saved in config
+			console.log("control pressed ");
 			char.pHoming = true;
 			char.currentAnim = anim.jump;
 			char.jumpState = 1;
@@ -1872,6 +1921,7 @@ function controlPressed(e) {
 	}
 	if (char.levitate == true && char.state == -1 && char.jumpState == 1 && char.levTimer > 0) {
 		if (e.keyCode == 65 && keysDown[jumpKey] == false) {
+			console.log("control pressed ");
 			char.pHoming = true;
 			char.currentAnim = anim.levi;
 			char.GRV = 0;
@@ -1880,7 +1930,8 @@ function controlPressed(e) {
 	}
 	if (char.dropDash == true && char.state == -1 && char.jumpState == 1) {
 		if (e.keyCode == 65 && keysDown[jumpKey] == false) { //again, compares keycode to integer 65 instead of controls saved in config.
-			char.pDropDash = true;
+			console.log("control pressed ");
+			char.pDropDash = true; //this is the only line of code that sets the dropDash to true
 		}
 	}
 }
@@ -1888,6 +1939,7 @@ function controlPressed(e) {
 function controlReleased(e) {
 	if (keysDown[jumpKey] == true && e.keyCode == 65) { //again, compares keycode to integer 65 instead of controls saved in config.
 		if (char.levitate == true && char.state == -1 && char.jumpState == 1) {
+			console.log("control released");
 			char.GRV = 0.21875;
 		}
 	}
